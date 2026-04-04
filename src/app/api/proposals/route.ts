@@ -57,8 +57,9 @@ export async function GET() {
   // Return without formData for the list view (smaller payload)
   const list = all
     .sort((a, b) => b.dateCreated.localeCompare(a.dateCreated))
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    .map(({ formData: _fd, ...rest }) => rest);
+    .map(({ id, customerName, city, country, dateCreated, products, pricingModel, annualTotal, perpetualTotal, status }) =>
+      ({ id, customerName, city, country, dateCreated, products, pricingModel, annualTotal, perpetualTotal, status })
+    );
   return NextResponse.json(list);
 }
 
