@@ -147,6 +147,7 @@ export interface ProposalData {
   contactPerson: string;
   contactEmail: string;
   projectName: string;
+  salesPerson: string;
 
   // Step 2+3 - Products & Config
   selectedProducts: string[];
@@ -154,6 +155,17 @@ export interface ProposalData {
   kshareТier: KShareTier;
   servicesPackage: ServicesPackage | null;
   pricingModel: "annual" | "perpetual";
+
+  // Step 3 - HW configuration
+  haMode: boolean;
+  videoBitrateMbps: number;
+  retentionDays: {
+    lpr: number;
+    fr: number;
+    va: number;
+    iot: number;
+    cctv: number;
+  };
 
   // Step 5 - Generated content
   aiNarrative?: string;
@@ -238,41 +250,3 @@ export function calculatePricing(data: ProposalData): {
   };
 }
 
-export function calculateHardware(data: ProposalData): {
-  servers: { name: string; qty: number; notes: string }[];
-  total: number;
-} {
-  const lprQty = data.quantities["lpr"] ?? 0;
-  const frQty = data.quantities["face"] ?? 0;
-  const hasKShare = data.selectedProducts.includes("kshare");
-  const hasKReact = data.selectedProducts.includes("kreact");
-
-  const servers: { name: string; qty: number; notes: string }[] = [];
-
-  // Base app servers
-  let appServers = 3;
-  if (lprQty > 0) appServers += Math.ceil(lprQty / 300);
-  if (frQty > 0) appServers += Math.ceil(frQty / 100);
-  servers.push({
-    name: "Application Server (Windows Server 2022)",
-    qty: appServers,
-    notes: `Base 3 + ${Math.ceil(lprQty / 300)} LPR servers + ${Math.ceil(frQty / 100)} FR servers`,
-  });
-
-  servers.push({ name: "Active Directory Server", qty: 1, notes: "User authentication & group policy" });
-  servers.push({ name: "Maintenance Server", qty: 1, notes: "Monitoring, backups, patching" });
-  servers.push({ name: "SQL Server (Database)", qty: 1, notes: "Primary operational database" });
-  servers.push({ name: "Elasticsearch Server", qty: 1, notes: "Metadata search & indexing" });
-  servers.push({
-    name: "Ubuntu Web Server (NGINX + MongoDB + BFF)",
-    qty: 1,
-    notes: "Web frontend & backend-for-frontend",
-  });
-
-  if (hasKShare || hasKReact) {
-    servers.push({ name: "DMZ Server", qty: 1, notes: "Required for K-Share / K-React external access" });
-  }
-
-  const total = servers.reduce((s, sv) => s + sv.qty, 0);
-  return { servers, total };
-}
