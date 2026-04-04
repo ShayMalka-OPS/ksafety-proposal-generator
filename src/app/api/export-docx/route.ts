@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   Document, Paragraph, Table, TableRow, TableCell, TextRun,
-  HeadingLevel, AlignmentType, WidthType, ShadingType, Packer,
+  AlignmentType, WidthType, ShadingType, Packer,
   PageBreak, BorderStyle, Header, Footer, TableLayoutType,
 } from "docx";
 import { ProposalData, PRODUCTS, calculatePricing } from "@/lib/pricing";
