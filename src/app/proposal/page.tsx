@@ -1034,21 +1034,6 @@ export default function ProposalPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      {/* Header */}
-      <header style={{ backgroundColor: DARK_BLUE }} className="px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-white" style={{ backgroundColor: GOLD }}>K</div>
-          <div>
-            <div className="text-white font-bold tracking-wide">KABATONE</div>
-            <div className="text-xs" style={{ color: GOLD }}>SMART CITY SOLUTIONS</div>
-          </div>
-        </Link>
-        <div className="flex items-center gap-6">
-          <Link href="/proposals" className="text-blue-200 hover:text-white text-sm transition-colors">History</Link>
-          <div className="text-white text-sm opacity-70">New Proposal</div>
-        </div>
-      </header>
-
       {/* Progress */}
       <div style={{ backgroundColor: MID_BLUE }} className="px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center gap-0">

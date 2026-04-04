@@ -3,28 +3,6 @@ import Link from "next/link";
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header style={{ backgroundColor: "#1A3A5C" }} className="px-8 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div
-            className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-white text-lg"
-            style={{ backgroundColor: "#F0A500" }}
-          >
-            K
-          </div>
-          <div>
-            <div className="text-white font-bold text-xl tracking-wide">KABATONE</div>
-            <div className="text-xs tracking-widest" style={{ color: "#F0A500" }}>
-              SMART CITY SOLUTIONS
-            </div>
-          </div>
-        </div>
-        <nav className="flex gap-6 text-sm text-blue-200">
-          <span className="text-white font-medium">Proposal Generator</span>
-        </nav>
-      </header>
-
-      {/* Hero Section */}
       <main className="flex-1 flex flex-col">
         {/* Hero */}
         <section
