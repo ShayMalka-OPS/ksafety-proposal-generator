@@ -382,13 +382,15 @@ export async function POST(req: NextRequest) {
       })
     );
 
+    const hasModified = pricing.lineItems.some((i) => i.isModified);
+
     // ────────────────────────────────────────────────────────────────────────
     // SECTION 4 — PRICING SUMMARY
     // ────────────────────────────────────────────────────────────────────────
     const section4: (Paragraph | Table)[] = [
       new Paragraph({ children: [new PageBreak()] }),
       sectionHeading("Section 4 — Pricing Summary"),
-      subHeading("4a. License Pricing"),
+      subHeading("4a. License & Services Pricing"),
       new Table({
         width: { size: 100, type: WidthType.PERCENTAGE },
         layout: TableLayoutType.FIXED,
@@ -399,10 +401,11 @@ export async function POST(req: NextRequest) {
               hCell("Unit Price (Annual)"), hCell("Annual Total"), hCell("Perpetual Total"),
             ],
           }),
-          ...pricing.lineItems.map((item) =>
+          // License rows
+          ...pricing.licenseItems.map((item) =>
             new TableRow({
               children: [
-                dCell(item.name),
+                dCell(item.name + (item.isModified ? " *" : "")),
                 dCell(item.quantity.toString(), { center: true }),
                 dCell(item.unitLabel),
                 dCell(item.annualUnit > 0 ? fmt(item.annualUnit) : "—", { right: true }),
@@ -411,12 +414,38 @@ export async function POST(req: NextRequest) {
               ],
             })
           ),
+          // Subtotal licenses
           new TableRow({
             children: [
               new TableCell({
                 columnSpan: 4,
                 shading: { type: ShadingType.SOLID, color: C_LIGHT },
-                children: [new Paragraph({ children: [new TextRun({ text: "TOTAL", bold: true, size: 22, color: C_DARK_BLUE })], alignment: AlignmentType.RIGHT })],
+                children: [new Paragraph({ children: [new TextRun({ text: "Subtotal — Licenses", bold: true, size: 20, color: C_MID_BLUE })], alignment: AlignmentType.RIGHT })],
+              }),
+              dCell(fmt(pricing.licensesAnnual) + "/yr", { bold: true, right: true, color: C_MID_BLUE }),
+              dCell(fmt(pricing.licensesPerpetual), { bold: true, right: true, color: C_MID_BLUE }),
+            ],
+          }),
+          // Service rows
+          ...pricing.serviceItems.map((item) =>
+            new TableRow({
+              children: [
+                dCell(item.name + (item.isModified ? " *" : "")),
+                dCell("1", { center: true }),
+                dCell(item.unitLabel),
+                dCell(fmt(item.annualUnit), { right: true }),
+                dCell(fmt(item.annualTotal), { right: true }),
+                dCell("(one-time)", { right: true, color: C_GRAY }),
+              ],
+            })
+          ),
+          // Grand Total
+          new TableRow({
+            children: [
+              new TableCell({
+                columnSpan: 4,
+                shading: { type: ShadingType.SOLID, color: C_DARK_BLUE },
+                children: [new Paragraph({ children: [new TextRun({ text: "GRAND TOTAL", bold: true, size: 22, color: C_WHITE })], alignment: AlignmentType.RIGHT })],
               }),
               dCell(fmt(pricing.annualTotal) + "/yr", { bold: true, right: true, color: C_DARK_BLUE }),
               dCell(fmt(pricing.perpetualTotal), { bold: true, right: true, color: C_DARK_BLUE }),
@@ -424,10 +453,16 @@ export async function POST(req: NextRequest) {
           }),
         ],
       }),
+      ...(hasModified ? [
+        new Paragraph({
+          children: [new TextRun({ text: "* Price modified from default by the sales representative for this proposal.", size: 18, color: C_GRAY, italics: true })],
+          spacing: { before: 80, after: 80 },
+        }),
+      ] : []),
 
       subHeading("4c. 5-Year Cost Comparison"),
       new Table({
-        width: { size: 80, type: WidthType.PERCENTAGE },
+        width: { size: 100, type: WidthType.PERCENTAGE },
         layout: TableLayoutType.FIXED,
         rows: [
           new TableRow({ children: [hCell("Model"), hCell("Calculation"), hCell("5-Year Total")] }),
