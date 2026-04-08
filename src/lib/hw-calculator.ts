@@ -67,7 +67,7 @@ export interface HWCalcInput {
   frChannels: number;
   vaChannels: number;
   iotSensors: number;
-  cctvChannels: number;
+  cctvChannels: number;    // kept for pricing only — not used in HW sizing (3rd party VMS)
   haMode: boolean;
   hasKShare: boolean;
   hasKReact: boolean;
@@ -83,7 +83,8 @@ export interface HWCalcInput {
 
 export interface HWCalcResult {
   subsystemStorage: SubsystemStorageResult[];
-  videoStorage: VideoStorageResult;
+  videoStorage: VideoStorageResult;   // always zero (CCTV handled by 3rd party VMS)
+  objectStorageTB: number;            // LPR + FR + VA image storage
   vmSpecs: VMSpec[];
   totals: {
     imageStorageTB: number;
@@ -205,35 +206,44 @@ export function calculateHW(input: HWCalcInput): HWCalcResult {
     subsystemStorage.push(calcSubsystem("iot", input.iotSensors,  input.retentionDays.iot));
 
   // ── Video (CCTV) storage ───────────────────────────────────────────────────
-  // videoTB = channels × bitrateMbps × 125000 × 86400 × retentionDays / 1e12
-  const videoTB =
-    (input.cctvChannels * input.videoBitrateMbps * 125000 * 86400 * input.retentionDays.cctv) / 1e12;
-
+  // NOTE: CCTV video is handled by 3rd-party VMS — excluded from HW sizing.
+  // cctvChannels is kept for licensing/pricing purposes only.
   const videoStorage: VideoStorageResult = {
-    channels: input.cctvChannels,
+    channels: 0,
     bitrateMbps: input.videoBitrateMbps,
     retentionDays: input.retentionDays.cctv,
-    videoTB,
+    videoTB: 0,
   };
 
   // ── Aggregate storage ──────────────────────────────────────────────────────
   const totalImageTB  = subsystemStorage.reduce((s, r) => s + r.totalImageTB, 0);
   const totalMetaTB   = subsystemStorage.reduce((s, r) => s + r.totalMetaTB,  0);
-  const grandTotalTB  = totalImageTB + totalMetaTB + videoTB;
+  const grandTotalTB  = totalImageTB + totalMetaTB; // video excluded
 
-  // SQL disk: max(500, round(sqlGB/500)*500)
-  const sqlStorageGB = (totalMetaTB + totalImageTB) * 1024;
+  // Object storage = LPR + FR + VA image storage (metadata goes to SQL/ELK)
+  const objectStorageTB = subsystemStorage
+    .filter((r) => r.subsystem !== "IOT")
+    .reduce((s, r) => s + r.totalImageTB, 0);
+
+  // SQL disk: metadata + non-image data
+  const sqlStorageGB = totalMetaTB * 1024;
   const sqlDiskGB    = Math.max(500, Math.round(sqlStorageGB / 500) * 500);
 
-  // ELK disk: max(100, esGB × 1.2)
+  // ELK disk: metadata index with 1.2× overhead
   const esStorageGB = totalMetaTB * 1024;
   const elkDiskGB   = Math.max(100, Math.ceil(esStorageGB * 1.2));
 
   // ── VM sizing ──────────────────────────────────────────────────────────────
-  const totalChannels = input.lprChannels + input.frChannels + input.vaChannels + input.cctvChannels;
+  // NOTE: cctvChannels excluded from server-count calculation (3rd party VMS)
+  const totalChannels = input.lprChannels + input.frChannels + input.vaChannels;
   let appServerCount = 3;
-  if (input.haMode)             appServerCount++;
-  if (totalChannels > 500)      appServerCount++;
+  if (input.haMode)                            appServerCount++;
+  if (input.lprChannels > 300)                 appServerCount++;
+  if (input.frChannels > 100)                  appServerCount++;
+  if (totalChannels > 500)                     appServerCount++;
+
+  // Clamp to max defined comment labels
+  appServerCount = Math.min(appServerCount, 5);
 
   const APP_COMMENTS = [
     "Permission, RBE, Events, Sync, UI_DATA, VMS",
@@ -245,7 +255,8 @@ export function calculateHW(input: HWCalcInput): HWCalcResult {
 
   const vmSpecs: VMSpec[] = [];
 
-  // Always-present infrastructure VMs
+  // ── Infrastructure VMs ─────────────────────────────────────────────────────
+
   vmSpecs.push({
     group: "Infrastructure",
     serverName: "K1-AD-PKI-01",
@@ -254,10 +265,11 @@ export function calculateHW(input: HWCalcInput): HWCalcResult {
     os: "Windows Server 2022",
     vCores: 8,
     ramGB: 8,
-    localDiskGB: 80,
+    localDiskGB: 100,   // 100GB C: OS disk (min standard for Windows Server 2022)
     storageGB: 0,
-    comments: "Active Directory, PKI, DNS",
+    comments: "Active Directory, PKI, DNS | C: 100GB OS",
   });
+
   vmSpecs.push({
     group: "Infrastructure",
     serverName: "K1-MAINT-01",
@@ -268,10 +280,11 @@ export function calculateHW(input: HWCalcInput): HWCalcResult {
     ramGB: 16,
     localDiskGB: 150,
     storageGB: 0,
-    comments: "Monitoring, backups, patching",
+    comments: "Monitoring, backups, patching | C: 150GB",
   });
 
-  // Application servers (K1-APP1…APP5)
+  // ── Application servers ────────────────────────────────────────────────────
+
   for (let i = 0; i < appServerCount; i++) {
     vmSpecs.push({
       group: "Application",
@@ -281,13 +294,20 @@ export function calculateHW(input: HWCalcInput): HWCalcResult {
       os: "Windows Server 2022",
       vCores: 16,
       ramGB: 32,
-      localDiskGB: 80,
+      localDiskGB: 100,   // 100GB C: OS disk
       storageGB: 0,
-      comments: APP_COMMENTS[i] ?? "Application services",
+      comments: (APP_COMMENTS[i] ?? "Application services") + " | C: 100GB OS",
     });
   }
 
-  // Database
+  // ── Database ───────────────────────────────────────────────────────────────
+
+  // Object storage placement: < 1TB → extend SQL G: drive; ≥ 1TB → dedicated appliance
+  const objStorageOnSQL = objectStorageTB < 1;
+  const sqlObjNote = objStorageOnSQL
+    ? `G:\\Object Storage (~${(objectStorageTB * 1024).toFixed(0)}GB, on SQL server)`
+    : "G:\\Object Storage → see dedicated Object Storage appliance";
+
   vmSpecs.push({
     group: "Database",
     serverName: "K1-SQL-01",
@@ -296,12 +316,13 @@ export function calculateHW(input: HWCalcInput): HWCalcResult {
     os: "Windows Server 2022",
     vCores: 16,
     ramGB: 32,
-    localDiskGB: 150,
+    localDiskGB: 100,   // 100GB C: OS disk
     storageGB: sqlDiskGB,
-    comments: "D:\\DATA | E:\\Backup | G:\\Object Storage",
+    comments: `D:\\DATA | E:\\Backup | ${sqlObjNote} | C: 100GB OS, D:/E:/G: SAN`,
   });
 
-  // Search
+  // ── Search ─────────────────────────────────────────────────────────────────
+
   vmSpecs.push({
     group: "Search",
     serverName: "K1-ELK-01",
@@ -312,10 +333,11 @@ export function calculateHW(input: HWCalcInput): HWCalcResult {
     ramGB: 16,
     localDiskGB: 100,
     storageGB: elkDiskGB,
-    comments: "Elasticsearch metadata indexing",
+    comments: "Elasticsearch metadata indexing | /: 100GB OS, /data SAN",
   });
 
-  // Web
+  // ── Web ────────────────────────────────────────────────────────────────────
+
   vmSpecs.push({
     group: "Web",
     serverName: "K1-WEB-01",
@@ -324,43 +346,76 @@ export function calculateHW(input: HWCalcInput): HWCalcResult {
     os: "Ubuntu 24.04",
     vCores: 8,
     ramGB: 32,
-    localDiskGB: 500,
+    localDiskGB: 200,
     storageGB: 0,
-    comments: "NGINX + MongoDB + BFF",
+    comments: "NGINX + MongoDB + BFF | /: 200GB (OS + app + MongoDB data)",
   });
 
-  // DMZ — only if K-Share or K-React
+  // ── Monitoring (Zabbix) ────────────────────────────────────────────────────
+
+  vmSpecs.push({
+    group: "Monitoring",
+    serverName: "K1-MON-01",
+    vmPhysical: "VM",
+    amount: 1,
+    os: "Ubuntu 24.04",
+    vCores: 4,
+    ramGB: 8,
+    localDiskGB: 100,
+    storageGB: 0,
+    comments: "Zabbix Network Monitoring Platform | /: 100GB",
+  });
+
+  // ── DMZ — only if K-Share or K-React ──────────────────────────────────────
   if (input.hasKShare || input.hasKReact) {
     vmSpecs.push({
       group: "DMZ",
       serverName: "K1-DMZ-01",
       vmPhysical: "VM",
       amount: 1,
-      os: "Ubuntu 24.04",
+      os: "Windows Server 2022 STD",   // Fixed: was Ubuntu 24.04
       vCores: 8,
       ramGB: 16,
-      localDiskGB: 100,
+      localDiskGB: 100,   // 100GB C: OS disk
       storageGB: 0,
-      comments: "K-Share/K-React gateway. Ports 5228–5230 to Google Cloud",
+      comments: "K-Share/K-React gateway. Ports 5228–5230 to Google Cloud | C: 100GB OS",
     });
   }
 
-  const totalVMs      = vmSpecs.reduce((s, v) => s + v.amount, 0);
-  const totalStorageGB= vmSpecs.reduce((s, v) => s + v.storageGB, 0);
-  const peakImageIOps = subsystemStorage.reduce((s, r) => s + r.imageIOps, 0);
-  const peakMetaIOps  = subsystemStorage.reduce((s, r) => s + r.metaIOps, 0);
-  const videoThroughputMBps = (input.cctvChannels * input.videoBitrateMbps) / 8;
+  // ── Dedicated Object Storage — only if objectStorageTB >= 1TB ─────────────
+  if (!objStorageOnSQL) {
+    const objStorageGB = Math.ceil(objectStorageTB * 1024 * 1.4); // 40% overhead
+    vmSpecs.push({
+      group: "Object Storage",
+      serverName: "K1-OBJ-01",
+      vmPhysical: "Appliance",
+      amount: 1,
+      os: "Ubuntu 24.04 (MinIO / Ceph)",
+      vCores: 8,
+      ramGB: 32,
+      localDiskGB: 100,
+      storageGB: objStorageGB,
+      comments: `Dedicated object storage for LPR/FR/VA images. ~${(objectStorageTB).toFixed(1)}TB raw + 40% overhead`,
+    });
+  }
+
+  const totalVMs       = vmSpecs.reduce((s, v) => s + v.amount, 0);
+  const totalStorageGB = vmSpecs.reduce((s, v) => s + v.storageGB, 0);
+  const peakImageIOps  = subsystemStorage.reduce((s, r) => s + r.imageIOps, 0);
+  const peakMetaIOps   = subsystemStorage.reduce((s, r) => s + r.metaIOps,  0);
+  const videoThroughputMBps = 0; // CCTV excluded from HW (3rd party VMS)
 
   const dellRecommendation = getDellRecommendation(totalChannels, grandTotalTB, totalVMs);
 
   return {
     subsystemStorage,
     videoStorage,
+    objectStorageTB,
     vmSpecs,
     totals: {
       imageStorageTB: totalImageTB,
       metaStorageTB: totalMetaTB,
-      videoStorageTB: videoTB,
+      videoStorageTB: 0,
       grandTotalTB,
       peakImageIOps,
       peakMetaIOps,
@@ -394,7 +449,7 @@ export function buildHWInput(data: {
     frChannels:       data.quantities["face"]      ?? 0,
     vaChannels:       data.quantities["analytics"] ?? 0,
     iotSensors:       data.quantities["iot"]       ?? 0,
-    cctvChannels:     data.quantities["cctv"]      ?? 0,
+    cctvChannels:     data.quantities["cctv"]      ?? 0,  // pricing only
     haMode:           data.haMode ?? false,
     hasKShare:        data.selectedProducts.includes("kshare"),
     hasKReact:        data.selectedProducts.includes("kreact"),

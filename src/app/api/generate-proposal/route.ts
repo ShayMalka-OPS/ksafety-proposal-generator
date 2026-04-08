@@ -2,9 +2,19 @@ import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { ProposalData, PRODUCTS, calculatePricing } from "@/lib/pricing";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+export const maxDuration = 60; // Allow up to 60s for Claude API response
 
 export async function POST(req: NextRequest) {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    return NextResponse.json(
+      { error: "ANTHROPIC_API_KEY is not configured. Please add it to your environment variables." },
+      { status: 500 }
+    );
+  }
+
+  const client = new Anthropic({ apiKey });
+
   try {
     const data: ProposalData = await req.json();
     const pricing = calculatePricing(data);

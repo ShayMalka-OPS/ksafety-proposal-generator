@@ -480,16 +480,26 @@ export async function POST(req: NextRequest) {
               dCell(fmt(pricing.fiveYearPerpetual), { bold: true, right: true }),
             ],
           }),
-          new TableRow({
-            children: [
-              new TableCell({
-                columnSpan: 2,
-                shading: { type: ShadingType.SOLID, color: C_LIGHT },
-                children: [new Paragraph({ children: [new TextRun({ text: "Annual savings over 5 years", bold: true, size: 20, color: C_DARK_BLUE })], alignment: AlignmentType.RIGHT })],
-              }),
-              dCell(fmt(pricing.fiveYearPerpetual - pricing.fiveYearAnnual), { bold: true, right: true, color: "007020" }),
-            ],
-          }),
+          ...(pricing.fiveYearAnnual !== pricing.fiveYearPerpetual ? [
+            new TableRow({
+              children: [
+                new TableCell({
+                  columnSpan: 2,
+                  shading: { type: ShadingType.SOLID, color: C_LIGHT },
+                  children: [new Paragraph({ children: [new TextRun({
+                    text: pricing.fiveYearAnnual < pricing.fiveYearPerpetual
+                      ? "Annual savings over 5 years"
+                      : "Perpetual savings over 5 years",
+                    bold: true, size: 20, color: C_DARK_BLUE,
+                  })], alignment: AlignmentType.RIGHT })],
+                }),
+                dCell(
+                  fmt(Math.abs(pricing.fiveYearPerpetual - pricing.fiveYearAnnual)),
+                  { bold: true, right: true, color: "007020" }
+                ),
+              ],
+            }),
+          ] : []),
         ],
       }),
 

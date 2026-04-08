@@ -347,8 +347,8 @@ function Step3({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
   const hasFR    = data.selectedProducts.includes("face");
   const hasVA    = data.selectedProducts.includes("analytics");
   const hasIoT   = data.selectedProducts.includes("iot");
-  const hasCCTV  = data.selectedProducts.includes("cctv");
-  const hasAnyHW = hasLPR || hasFR || hasVA || hasIoT || hasCCTV;
+  // CCTV is licensing-only — video handled by 3rd party VMS, no HW sizing
+  const hasAnyHW = hasLPR || hasFR || hasVA || hasIoT;
 
   const hwResult = calculateHW(buildHWInput(data));
   const { grandTotalTB } = hwResult.totals;
@@ -402,30 +402,10 @@ function Step3({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
             </div>
           </div>
 
-          {/* Video bitrate */}
-          {hasCCTV && (
-            <div>
-              <label className="block text-sm font-semibold mb-1" style={{ color: DARK_BLUE }}>
-                Video Bitrate per CCTV Channel (Mbps)
-              </label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="number"
-                  min={1} max={20}
-                  value={data.videoBitrateMbps}
-                  onChange={(e) => onChange({ videoBitrateMbps: Math.max(1, parseFloat(e.target.value) || 4) })}
-                  className="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                />
-                <span className="text-xs text-gray-500">Mbps (typical: 4 Mbps for 1080p H.265)</span>
-              </div>
-            </div>
-          )}
-
-          {/* Retention periods */}
+          {/* Retention periods — CCTV excluded (handled by 3rd party VMS) */}
           <div>
             <div className="text-sm font-semibold mb-3" style={{ color: DARK_BLUE }}>Data Retention (days)</div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {hasCCTV && <RetInput label="CCTV Video"       value={data.retentionDays.cctv} onChange={(v) => setRetention("cctv", v)} hint="30d typical" />}
               {hasLPR  && <RetInput label="LPR"              value={data.retentionDays.lpr}  onChange={(v) => setRetention("lpr",  v)} hint="90d default" />}
               {hasFR   && <RetInput label="Face Recognition" value={data.retentionDays.fr}   onChange={(v) => setRetention("fr",   v)} hint="90d default" />}
               {hasVA   && <RetInput label="Video Analytics"  value={data.retentionDays.va}   onChange={(v) => setRetention("va",   v)} hint="45d default" />}
@@ -445,9 +425,6 @@ function Step3({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
               {hwResult.totals.metaStorageTB > 0 && (
                 <StoragePill label="Metadata"     value={`${round2(hwResult.totals.metaStorageTB)} TB`} />
               )}
-              {hwResult.totals.videoStorageTB > 0 && (
-                <StoragePill label="Video"        value={`${round2(hwResult.totals.videoStorageTB)} TB`} />
-              )}
               <StoragePill label="Grand Total" value={`${round2(grandTotalTB)} TB`} bold />
             </div>
           </div>
@@ -455,8 +432,9 @@ function Step3({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
       ) : (
         <div className="rounded-xl border border-gray-200 bg-gray-50 p-8 text-center text-gray-400">
           <div className="text-2xl mb-2">🔧</div>
-          <p className="text-sm">No video/IoT products selected — no HW sizing required.</p>
-          <p className="text-xs mt-1">Select CCTV, LPR, Face Recognition, Video Analytics or IoT Sensors to unlock HW configuration.</p>
+          <p className="text-sm">No server-side products selected — no HW sizing required.</p>
+          <p className="text-xs mt-1">Select LPR, Face Recognition, Video Analytics or IoT Sensors to unlock HW configuration.</p>
+          <p className="text-xs mt-1 text-gray-400">Note: CCTV video is handled by 3rd-party VMS — no server sizing required for CCTV.</p>
         </div>
       )}
     </div>
@@ -875,16 +853,7 @@ function Step5({
                         <td className="px-3 py-2 text-right font-semibold">{round2(s.totalTB)}</td>
                       </tr>
                     ))}
-                    {hw.videoStorage.channels > 0 && (
-                      <tr className="bg-white">
-                        <td className="px-3 py-2 font-semibold">CCTV Video</td>
-                        <td className="px-3 py-2 text-center">{hw.videoStorage.channels}ch</td>
-                        <td className="px-3 py-2 text-center">{hw.videoStorage.retentionDays}d</td>
-                        <td className="px-3 py-2 text-right">{round2(hw.videoStorage.videoTB)}</td>
-                        <td className="px-3 py-2 text-right">—</td>
-                        <td className="px-3 py-2 text-right font-semibold">{round2(hw.videoStorage.videoTB)}</td>
-                      </tr>
-                    )}
+                    {/* CCTV video excluded — handled by 3rd-party VMS */}
                     <tr style={{ backgroundColor: "rgba(26,58,92,0.06)" }} className="font-bold">
                       <td colSpan={5} className="px-3 py-2 text-right" style={{ color: DARK_BLUE }}>Grand Total</td>
                       <td className="px-3 py-2 text-right text-lg" style={{ color: GOLD }}>{round2(hw.totals.grandTotalTB)} TB</td>
@@ -930,17 +899,32 @@ function Step5({
               </tbody>
             </table>
             <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-lg bg-blue-50 p-4">
+              <div className="rounded-lg p-4"
+                style={{
+                  backgroundColor: pricing.fiveYearAnnual <= pricing.fiveYearPerpetual ? "#eff6ff" : "#fff7ed",
+                  border: `1px solid ${pricing.fiveYearAnnual <= pricing.fiveYearPerpetual ? "#bfdbfe" : "#fed7aa"}`,
+                }}>
                 <div className="text-xs text-gray-500">Annual × 5 years</div>
                 <div className="text-xl font-bold mt-1" style={{ color: MID_BLUE }}>{fmt(pricing.fiveYearAnnual)}</div>
-                <div className="text-xs font-semibold text-green-600 mt-1">
-                  Save {fmt(pricing.fiveYearPerpetual - pricing.fiveYearAnnual)} vs. perpetual
-                </div>
+                {pricing.fiveYearAnnual < pricing.fiveYearPerpetual && (
+                  <div className="text-xs font-semibold text-green-600 mt-1">
+                    Save {fmt(pricing.fiveYearPerpetual - pricing.fiveYearAnnual)} vs. perpetual
+                  </div>
+                )}
               </div>
-              <div className="rounded-lg bg-gray-50 p-4">
+              <div className="rounded-lg p-4"
+                style={{
+                  backgroundColor: pricing.fiveYearPerpetual < pricing.fiveYearAnnual ? "#eff6ff" : "#f9fafb",
+                  border: `1px solid ${pricing.fiveYearPerpetual < pricing.fiveYearAnnual ? "#bfdbfe" : "#e5e7eb"}`,
+                }}>
                 <div className="text-xs text-gray-500">Perpetual + 4yr support</div>
                 <div className="text-xl font-bold mt-1" style={{ color: DARK_BLUE }}>{fmt(pricing.fiveYearPerpetual)}</div>
                 <div className="text-xs text-gray-400 mt-1">{fmt(pricing.year2SupportAnnual)}/yr from Year 2</div>
+                {pricing.fiveYearPerpetual < pricing.fiveYearAnnual && (
+                  <div className="text-xs font-semibold text-green-600 mt-1">
+                    Save {fmt(pricing.fiveYearAnnual - pricing.fiveYearPerpetual)} vs. annual
+                  </div>
+                )}
               </div>
             </div>
           </section>
