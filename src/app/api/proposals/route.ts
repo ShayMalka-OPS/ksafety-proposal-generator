@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { ProposalData, PRODUCTS, calculatePricing } from "@/lib/pricing";
+import { getDataPath } from "@/lib/data-path";
 
-const DATA_PATH = join(process.cwd(), "src", "data", "proposals.json");
+const DATA_PATH = getDataPath();
 
 export interface SavedProposal {
   id: string;
@@ -32,8 +33,11 @@ function readAll(): SavedProposal[] {
 }
 
 function writeAll(proposals: SavedProposal[]) {
-  const dir = join(process.cwd(), "src", "data");
-  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  if (!process.env.VERCEL) {
+    // In local dev, ensure the data directory exists
+    const dir = join(process.cwd(), "src", "data");
+    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  }
   writeFileSync(DATA_PATH, JSON.stringify(proposals, null, 2), "utf-8");
 }
 

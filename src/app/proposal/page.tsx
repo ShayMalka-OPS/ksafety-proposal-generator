@@ -777,31 +777,52 @@ function Step5({
   const dateStr  = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   const refNum   = savedId ?? `KSP-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, "0")}-DRAFT`;
 
+  // Internal save helper — used by both auto-save and the manual button
+  const persistProposal = async (narrativeText: string, existingId: string | null): Promise<string | null> => {
+    if (existingId) {
+      // Update the existing saved proposal with the latest narrative
+      await fetch(`/api/proposals/${existingId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ narrative: narrativeText }),
+      }).catch(console.error);
+      return existingId;
+    }
+    const res  = await fetch("/api/proposals", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ formData: data, narrative: narrativeText }),
+    });
+    const json = await res.json();
+    return json.id ?? null;
+  };
+
   const generateNarrative = async () => {
     setGenerating(true);
     try {
       const res  = await fetch("/api/generate-proposal", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
       const json = await res.json();
-      if (json.narrative) setNarrative(json.narrative);
-      else alert("Error: " + (json.error || "Unknown error"));
-    } catch { alert("Network error. Check your API key."); }
+      if (json.narrative) {
+        setNarrative(json.narrative);
+        // Auto-save / update history with the generated narrative
+        const id = await persistProposal(json.narrative, savedId);
+        if (id && !savedId) setSavedId(id);
+      } else {
+        alert("Error generating summary: " + (json.error || "Unknown error"));
+      }
+    } catch { alert("Network error — could not reach the AI service."); }
     finally   { setGenerating(false); }
   };
 
   const saveToHistory = async () => {
     setSaving(true);
     try {
-      const res  = await fetch("/api/proposals", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ formData: data, narrative }),
-      });
-      const json = await res.json();
-      if (json.id) {
-        setSavedId(json.id);
-        alert(`Proposal saved as ${json.id}`);
+      const id = await persistProposal(narrative, savedId);
+      if (id) {
+        if (!savedId) setSavedId(id);
+        alert(`Proposal saved as ${id}`);
       } else {
-        alert("Save failed: " + (json.error ?? "Unknown error"));
+        alert("Save failed — please try again.");
       }
     } catch { alert("Save failed — network error."); }
     finally { setSaving(false); }
@@ -1142,6 +1163,21 @@ function ProposalWizard() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [searchParams]);
+
+  // Auto-save when the user reaches step 6 for the first time (new proposal only)
+  useEffect(() => {
+    if (step !== 6 || savedId || loading) return;
+    if (!data.customerName || data.selectedProducts.length === 0) return;
+    fetch("/api/proposals", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ formData: data, narrative: "" }),
+    })
+      .then((r) => r.json())
+      .then((json) => { if (json.id) setSavedId(json.id); })
+      .catch(console.error);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
   const update = (partial: Partial<ProposalData>) => setData((d) => ({ ...d, ...partial }));
 

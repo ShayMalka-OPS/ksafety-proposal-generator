@@ -5,7 +5,7 @@
  * Tests are skipped with a clear message if the server is not reachable.
  */
 
-const BASE = 'http://localhost:3000';
+const BASE = process.env.TEST_BASE_URL || 'http://localhost:3000';
 
 const validProposalPayload = {
   productLine: 'ksafety',
@@ -169,6 +169,7 @@ describe('API Endpoints', () => {
     if (skipIfNoServer()) return;
     // We can't unset the server's env var, but we can verify the error shape
     // when the Claude call fails (will return 500 with { error: "..." })
+    // Allow up to 30s — a real Claude call can take 10-15s
     const res = await fetch(`${BASE}/api/generate-proposal`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -183,6 +184,6 @@ describe('API Endpoints', () => {
     } else {
       expect(typeof body.narrative).toBe('string');
     }
-  });
+  }, 30000); // 30s timeout — Claude API can take 10-15s
 
 });

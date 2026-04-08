@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const DARK_BLUE = "#1A3A5C";
 const GOLD      = "#F0A500";
@@ -57,7 +58,9 @@ export default function AboutPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Hero */}
       <section className="py-16 px-8 text-white text-center" style={{ background: `linear-gradient(135deg, ${DARK_BLUE} 0%, ${MID_BLUE} 100%)` }}>
-        <div className="inline-block w-14 h-14 rounded-xl flex items-center justify-center font-black text-3xl mb-4 mx-auto" style={{ backgroundColor: GOLD, color: DARK_BLUE }}>K</div>
+        <div className="inline-block mb-4">
+          <Image src="/images/kabatone-logo.png" alt="Kabatone" width={56} height={56} style={{ height: "56px", width: "auto", borderRadius: "12px" }} priority />
+        </div>
         <h1 className="text-3xl font-bold mt-2">K-Safety Proposal Generator</h1>
         <p className="text-blue-200 mt-2 text-sm">by Kabatone Ltd.</p>
         <div className="mt-4 flex items-center justify-center gap-3">

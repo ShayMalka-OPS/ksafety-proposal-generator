@@ -1,19 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readFileSync, writeFileSync, existsSync } from "fs";
-import { join } from "path";
 import type { SavedProposal } from "../route";
-
-const DATA_PATH = join(process.cwd(), "src", "data", "proposals.json");
+import { getDataPath } from "@/lib/data-path";
 
 function readAll(): SavedProposal[] {
+  const path = getDataPath();
   try {
-    if (!existsSync(DATA_PATH)) return [];
-    return JSON.parse(readFileSync(DATA_PATH, "utf-8")) as SavedProposal[];
+    if (!existsSync(path)) return [];
+    return JSON.parse(readFileSync(path, "utf-8")) as SavedProposal[];
   } catch { return []; }
 }
 
 function writeAll(proposals: SavedProposal[]) {
-  writeFileSync(DATA_PATH, JSON.stringify(proposals, null, 2), "utf-8");
+  writeFileSync(getDataPath(), JSON.stringify(proposals, null, 2), "utf-8");
 }
 
 // ─── GET /api/proposals/[id] ──────────────────────────────────────────────────
