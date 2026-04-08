@@ -95,28 +95,14 @@ https://github.com/ShayMalka-OPS/ksafety-proposal-generator
 6. HW infrastructure requirements table
 7. Professional Services section
 8. Next steps / call to action
-```
 
----
-
-### Step 2 — In Claude Code, just say this
-```
-Read the CLAUDE.md file in this project. 
-Then build the proposal generator application described in it.
-Start with the project scaffold and push to GitHub.
-```
-
-Claude Code reads `CLAUDE.md` automatically every session — so it always knows your full project context **without you repeating yourself.**
-
----
-
-### Step 3 — Add your documents progressively
-
-You can also drop files into your project folder and tell Claude Code to read them:
-```
-Read the file pricing.pdf in this folder and extract 
-all pricing information to update our pricing module
-```
-```
-Read hw-calculator.html and use the calculation logic 
-to build our infrastructure sizing module
+## Key Features (v1.0)
+- Step-by-step proposal wizard at /proposal
+- Cloud vs On-Prem deployment selector
+- Editable pricing with live 5-year cost comparison
+- AI-generated executive summary (Claude API, claude-sonnet-4-6)
+- Server-side PDF export (puppeteer)
+- Word document export (editable)
+- Proposal history dashboard at /proposals (save, view, delete)
+- About page at /about
+- Full Kabatone brand styling (logo, colors, typography)
