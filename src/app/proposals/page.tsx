@@ -57,7 +57,7 @@ function DashboardStats({ proposals }: { proposals: ProposalRow[] }) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
       {stats.map((s) => (
-        <div key={s.label} className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+        <div key={s.label} className="bg-white rounded-[8px] border border-gray-200 p-5 shadow-sm">
           <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">{s.label}</div>
           <div className="text-2xl font-black" style={{ color: DARK_BLUE }}>{s.value}</div>
           <div className="text-xs text-gray-400 mt-0.5">{s.sub}</div>
@@ -106,7 +106,7 @@ function DeleteModal({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full mx-4">
+      <div className="bg-white rounded-[8px] shadow-xl p-8 max-w-sm w-full mx-4">
         <h3 className="text-lg font-bold mb-2" style={{ color: DARK_BLUE }}>Delete Proposal?</h3>
         <p className="text-sm text-gray-600 mb-6">
           Are you sure you want to delete <strong>{proposal.id}</strong> for <strong>{proposal.customerName}</strong>?
@@ -119,7 +119,8 @@ function DeleteModal({
             Cancel
           </button>
           <button onClick={onConfirm}
-            className="px-5 py-2 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700">
+            className="px-5 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90"
+            style={{ backgroundColor: "#E74C3C" }}>
             Delete
           </button>
         </div>
@@ -227,7 +228,7 @@ export default function ProposalsPage() {
               placeholder="Search by customer, city, or ID…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 min-w-48 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="flex-1 min-w-48 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E6BA8]"
             />
             <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
               {(["All", "Draft", "Sent", "Won", "Lost"] as const).map((s) => (
@@ -248,7 +249,7 @@ export default function ProposalsPage() {
           </div>
 
           {/* Table */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-[8px] border border-gray-200 shadow-sm overflow-hidden">
             {loading ? (
               <div className="py-20 text-center text-gray-400 text-sm">Loading proposals…</div>
             ) : visible.length === 0 ? (
@@ -337,7 +338,7 @@ export default function ProposalsPage() {
                               onClick={() => exportDocx(p.id)}
                               disabled={exporting === p.id}
                               className="px-2 py-1 text-xs rounded-md font-semibold border transition-all hover:opacity-80 disabled:opacity-50"
-                              style={{ borderColor: "#6b7280", color: "#374151" }}
+                              style={{ borderColor: MID_BLUE, color: MID_BLUE }}
                               title="Export Word document"
                             >
                               {exporting === p.id ? "…" : "⬇ Word"}

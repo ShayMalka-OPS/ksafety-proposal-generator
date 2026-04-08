@@ -32,7 +32,7 @@ export default function TopNav() {
           src="/images/kabatone-logo.png"
           alt="Kabatone"
           height={40}
-          width={40}
+          width={160}
           style={{ height: "40px", width: "auto", borderRadius: "4px" }}
           priority
         />
@@ -46,7 +46,7 @@ export default function TopNav() {
 
       {/* Nav links — active = gold underline (per brand spec) */}
       <nav className="flex items-center gap-1">
-        <span className="text-blue-300 text-sm mr-3 hidden lg:block">K-Safety Proposals</span>
+        <span className="text-sm mr-3 hidden lg:block" style={{ color: "rgba(255,255,255,0.55)" }}>K-Safety Proposals</span>
         {LINKS.map(({ href, label, exact }) => {
           const active = isActive(href, exact);
           return (

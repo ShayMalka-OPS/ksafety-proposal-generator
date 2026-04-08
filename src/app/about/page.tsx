@@ -74,7 +74,7 @@ export default function AboutPage() {
       <div className="max-w-3xl mx-auto py-12 px-6 space-y-10">
 
         {/* Version info */}
-        <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <section className="bg-white rounded-[8px] border border-gray-100 shadow-sm p-6">
           <h2 className="text-lg font-bold mb-4" style={{ color: DARK_BLUE }}>Current Version</h2>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
@@ -101,7 +101,7 @@ export default function AboutPage() {
           <h2 className="text-lg font-bold mb-4" style={{ color: DARK_BLUE }}>Changelog</h2>
           <div className="space-y-4">
             {CHANGELOG.map((entry, i) => (
-              <div key={entry.version} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+              <div key={entry.version} className="bg-white rounded-[8px] border border-gray-100 shadow-sm overflow-hidden">
                 <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
                   <span
                     className="text-sm font-bold px-3 py-1 rounded-full"
@@ -132,7 +132,7 @@ export default function AboutPage() {
         </section>
 
         {/* Contact */}
-        <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <section className="bg-white rounded-[8px] border border-gray-100 shadow-sm p-6">
           <h2 className="text-lg font-bold mb-4" style={{ color: DARK_BLUE }}>Contact & Support</h2>
           <div className="space-y-4 text-sm">
             <div className="flex items-start gap-3">
@@ -141,7 +141,7 @@ export default function AboutPage() {
               </div>
               <div>
                 <div className="font-semibold" style={{ color: DARK_BLUE }}>Product Manager</div>
-                <a href="mailto:shaym@kabatone.com" className="text-blue-600 hover:underline">shaym@kabatone.com</a>
+                <a href="mailto:shaym@kabatone.com" className="hover:underline" style={{ color: MID_BLUE }}>shaym@kabatone.com</a>
                 <div className="text-xs text-gray-400 mt-0.5">For feature requests, bug reports, and pricing updates</div>
               </div>
             </div>
@@ -151,7 +151,7 @@ export default function AboutPage() {
               </div>
               <div>
                 <div className="font-semibold" style={{ color: DARK_BLUE }}>Website</div>
-                <span className="text-blue-600">www.kabatone.com</span>
+                <span style={{ color: MID_BLUE }}>www.kabatone.com</span>
                 <div className="text-xs text-gray-400 mt-0.5">Official Kabatone Ltd. product site</div>
               </div>
             </div>
@@ -164,7 +164,7 @@ export default function AboutPage() {
                 <a
                   href="https://github.com/ShayMalka-OPS/ksafety-proposal-generator"
                   target="_blank" rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
+                  className="hover:underline" style={{ color: MID_BLUE }}
                 >
                   ShayMalka-OPS/ksafety-proposal-generator
                 </a>
@@ -177,8 +177,8 @@ export default function AboutPage() {
         <div className="text-center">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm transition-all hover:opacity-90"
-            style={{ backgroundColor: DARK_BLUE, color: "white" }}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm transition-all hover:bg-blue-50"
+            style={{ border: "2px solid #1A3A5C", color: DARK_BLUE }}
           >
             ← Back to Home
           </Link>

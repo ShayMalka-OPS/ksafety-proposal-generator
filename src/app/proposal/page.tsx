@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ProposalData,
   PRODUCTS,
@@ -179,7 +180,7 @@ function Step1({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
         value={(data[key] as string) ?? ""}
         onChange={(e) => onChange({ [key]: e.target.value })}
         placeholder={placeholder}
-        className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+        className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E6BA8]"
       />
     </div>
   );
@@ -403,7 +404,7 @@ function Step2({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
                                   value={currentPrice}
                                   onChange={(e) => setCustomPrice(priceKey, e.target.value)}
                                   title={`Default: ${fmt(defaultPriceVal)}/${product.unitLabel}/yr`}
-                                  className="w-32 pl-7 pr-3 py-1.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 transition-colors"
+                                  className="w-32 pl-7 pr-3 py-1.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E6BA8] transition-colors"
                                   style={{
                                     borderColor: isModified ? "#f59e0b" : "#d1d5db",
                                     backgroundColor: isModified ? "#fffbeb" : "white",
@@ -418,7 +419,7 @@ function Step2({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
                                   </span>
                                   <button
                                     onClick={() => resetPrice(priceKey)}
-                                    className="text-xs text-blue-500 hover:text-blue-700 hover:underline"
+                                    className="text-xs hover:underline" style={{ color: MID_BLUE }}
                                   >
                                     Reset to {fmt(defaultPriceVal)}
                                   </button>
@@ -725,7 +726,7 @@ function Step4({ data }: { data: ProposalData }) {
           <div className="overflow-x-auto rounded-xl border border-gray-200">
             <table className="w-full text-xs whitespace-nowrap">
               <thead>
-                <tr style={{ backgroundColor: MID_BLUE }}>
+                <tr style={{ backgroundColor: DARK_BLUE }}>
                   {["Server Name","OS","vCores","RAM","Storage","Comments"].map(h => (
                     <th key={h} className="text-left px-3 py-2 text-white font-semibold">{h}</th>
                   ))}
@@ -862,18 +863,18 @@ function Step5({
         </div>
         <div className="flex gap-2 flex-wrap">
           <button onClick={generateNarrative} disabled={generating}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm disabled:opacity-60"
-            style={{ backgroundColor: DARK_BLUE, color: "white" }}>
+            className="flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-sm disabled:opacity-60 shadow-md"
+            style={{ backgroundColor: GOLD, color: DARK_BLUE }}>
             {generating ? "Generating…" : "Generate AI Summary"}
           </button>
           <button onClick={saveToHistory} disabled={saving}
             className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm border-2 disabled:opacity-60"
-            style={{ borderColor: GOLD, color: DARK_BLUE }}>
+            style={{ borderColor: DARK_BLUE, color: DARK_BLUE }}>
             {saving ? "Saving…" : savedId ? `Saved (${savedId})` : "Save to History"}
           </button>
           <button onClick={exportDocx}
             className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm border-2"
-            style={{ borderColor: MID_BLUE, color: MID_BLUE }}>
+            style={{ borderColor: DARK_BLUE, color: DARK_BLUE }}>
             Export Word
           </button>
           <button onClick={exportPdf}
@@ -888,7 +889,9 @@ function Step5({
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden" id="proposal-preview">
         {/* Cover */}
         <div className="p-10 text-center" style={{ backgroundColor: DARK_BLUE }}>
-          <div className="inline-block w-14 h-14 rounded-xl flex items-center justify-center font-black text-3xl mb-3" style={{ backgroundColor: GOLD, color: DARK_BLUE }}>K</div>
+          <div className="inline-block mb-3">
+            <Image src="/images/kabatone-logo.png" alt="Kabatone" width={56} height={56} style={{ height: "56px", width: "auto", borderRadius: "10px" }} />
+          </div>
           <div className="text-white text-3xl font-bold">KABATONE</div>
           <div className="text-sm tracking-widest mt-1" style={{ color: GOLD }}>SMART CITY SOLUTIONS</div>
           <div className="text-white text-2xl font-semibold mt-6">{data.projectName || "K-Safety Platform Proposal"}</div>
@@ -1000,7 +1003,7 @@ function Step5({
               <div className="overflow-x-auto rounded-xl border border-gray-200">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr style={{ backgroundColor: MID_BLUE }}>
+                    <tr style={{ backgroundColor: DARK_BLUE }}>
                       {["Subsystem","Sensors","Retention","Image TB","Meta TB","Total TB"].map(h => (
                         <th key={h} className="text-left px-3 py-2 text-white font-semibold">{h}</th>
                       ))}
@@ -1236,7 +1239,7 @@ function ProposalWizard() {
       {/* Content */}
       <main className="flex-1 py-10 px-6">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+          <div className="bg-white rounded-[8px] shadow-sm border border-gray-100 p-8">
             {step === 1 && <Step0 data={data} onChange={update} />}
             {step === 2 && <Step1 data={data} onChange={update} />}
             {step === 3 && <Step2 data={data} onChange={update} />}
