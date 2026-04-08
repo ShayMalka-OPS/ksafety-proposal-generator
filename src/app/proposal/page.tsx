@@ -703,6 +703,20 @@ function Step5({
     URL.revokeObjectURL(url);
   };
 
+  const exportPdf = async () => {
+    const res = await fetch("/api/export-pdf", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ data, narrative }) });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: "Unknown error" }));
+      alert("PDF export failed: " + (err.error ?? "Unknown error"));
+      return;
+    }
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href = url; a.download = `${data.projectName || "K-Safety-Proposal"}.pdf`; a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-8">
       {/* Action buttons */}
@@ -727,10 +741,10 @@ function Step5({
             style={{ borderColor: MID_BLUE, color: MID_BLUE }}>
             Export Word
           </button>
-          <button onClick={() => window.print()}
+          <button onClick={exportPdf}
             className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm"
             style={{ backgroundColor: GOLD, color: DARK_BLUE }}>
-            Print / PDF
+            Export PDF
           </button>
         </div>
       </div>
