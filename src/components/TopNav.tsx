@@ -11,6 +11,7 @@ interface NavLink { href: string; label: string; exact?: boolean; }
 const LINKS: NavLink[] = [
   { href: "/proposals", label: "📋 History" },
   { href: "/proposal",  label: "➕ New Proposal" },
+  { href: "/about",     label: "ℹ️ About", exact: true },
 ];
 
 export default function TopNav() {
