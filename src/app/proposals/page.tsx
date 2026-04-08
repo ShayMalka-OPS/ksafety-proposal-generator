@@ -114,7 +114,8 @@ function DeleteModal({
         </p>
         <div className="flex gap-3 justify-end">
           <button onClick={onCancel}
-            className="px-5 py-2 rounded-lg text-sm font-semibold border border-gray-300 text-gray-600 hover:bg-gray-50">
+            className="px-5 py-2 rounded-lg text-sm font-semibold transition-all hover:bg-blue-50"
+            style={{ border: "2px solid #1A3A5C", color: "#1A3A5C" }}>
             Cancel
           </button>
           <button onClick={onConfirm}

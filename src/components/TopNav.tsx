@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 const DARK_BLUE = "#1A3A5C";
@@ -21,40 +22,48 @@ export default function TopNav() {
     exact ? pathname === href : pathname.startsWith(href);
 
   return (
-    <header style={{ backgroundColor: DARK_BLUE }} className="px-6 py-3 flex items-center justify-between shadow-sm">
-      {/* Logo */}
-      <Link href="/" className="flex items-center gap-3 group">
-        <div
-          className="w-9 h-9 rounded-lg flex items-center justify-center font-black text-lg text-white transition-transform group-hover:scale-105"
-          style={{ backgroundColor: GOLD }}
-        >
-          K
-        </div>
-        <div>
-          <div className="text-white font-bold tracking-wide leading-none">KABATONE</div>
+    <header
+      style={{ backgroundColor: DARK_BLUE, height: "64px" }}
+      className="px-6 flex items-center justify-between shadow-sm"
+    >
+      {/* Logo — real Kabatone logo */}
+      <Link href="/" className="flex items-center gap-3 group flex-shrink-0">
+        <Image
+          src="/images/kabatone-logo.png"
+          alt="Kabatone"
+          height={40}
+          width={40}
+          style={{ height: "40px", width: "auto", borderRadius: "4px" }}
+          priority
+        />
+        <div className="hidden sm:block">
+          <div className="text-white font-bold tracking-wide leading-none text-sm">KABATONE</div>
           <div className="text-xs tracking-widest leading-none mt-0.5" style={{ color: GOLD }}>
             SMART CITY SOLUTIONS
           </div>
         </div>
       </Link>
 
-      {/* Nav links */}
+      {/* Nav links — active = gold underline (per brand spec) */}
       <nav className="flex items-center gap-1">
-        <span className="text-blue-300 text-sm mr-3 hidden md:block">K-Safety Proposals</span>
+        <span className="text-blue-300 text-sm mr-3 hidden lg:block">K-Safety Proposals</span>
         {LINKS.map(({ href, label, exact }) => {
           const active = isActive(href, exact);
           return (
             <Link
               key={href}
               href={href}
-              className="px-4 py-2 rounded-lg text-sm font-semibold transition-all"
-              style={
-                active
-                  ? { backgroundColor: GOLD, color: DARK_BLUE }
-                  : { color: "rgba(255,255,255,0.75)" }
-              }
+              className="px-4 py-2 text-sm font-medium transition-all relative"
+              style={{ color: active ? GOLD : "rgba(255,255,255,0.80)" }}
             >
               {label}
+              {/* Gold underline for active state */}
+              {active && (
+                <span
+                  className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full"
+                  style={{ backgroundColor: GOLD }}
+                />
+              )}
             </Link>
           );
         })}

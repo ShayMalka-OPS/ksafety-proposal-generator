@@ -1175,9 +1175,9 @@ function ProposalWizard() {
                 <div
                   className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all"
                   style={
-                    s.id === step   ? { backgroundColor: GOLD, color: DARK_BLUE } :
-                    s.id < step     ? { backgroundColor: "rgba(240,165,0,0.5)", color: "white" } :
-                                      { backgroundColor: "rgba(255,255,255,0.2)", color: "rgba(255,255,255,0.5)" }
+                    s.id === step ? { backgroundColor: GOLD, color: DARK_BLUE } :
+                    s.id < step   ? { backgroundColor: GOLD, color: DARK_BLUE } :
+                                    { backgroundColor: "transparent", border: "2px solid #D0D8E4", color: "rgba(255,255,255,0.45)" }
                   }
                 >
                   {s.id < step ? "✓" : s.id}
@@ -1218,11 +1218,13 @@ function ProposalWizard() {
             <div className="flex justify-between mt-10 pt-6 border-t border-gray-100">
               {step > 1 ? (
                 <button onClick={() => setStep(step - 1)}
-                  className="px-6 py-2.5 rounded-lg text-sm font-semibold border border-gray-300 text-gray-600 hover:bg-gray-50">
+                  className="px-6 py-2.5 rounded-lg text-sm font-semibold transition-all hover:bg-blue-50"
+                  style={{ border: "2px solid #1A3A5C", color: "#1A3A5C" }}>
                   ← Back
                 </button>
               ) : (
-                <Link href="/" className="px-6 py-2.5 rounded-lg text-sm font-semibold border border-gray-300 text-gray-600 hover:bg-gray-50">
+                <Link href="/" className="px-6 py-2.5 rounded-lg text-sm font-semibold transition-all hover:bg-blue-50"
+                  style={{ border: "2px solid #1A3A5C", color: "#1A3A5C" }}>
                   ← Home
                 </Link>
               )}
