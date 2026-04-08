@@ -10,6 +10,10 @@ import {
   SERVICES_PRICING,
   KShareTier,
   ServicesPackage,
+  ProductLine,
+  DeploymentType,
+  PRODUCT_LINES,
+  PRODUCT_LINE_PRODUCTS,
   calculatePricing,
 } from "@/lib/pricing";
 import {
@@ -22,11 +26,12 @@ import { calculateHW, buildHWInput, SUBSYSTEM_DEFAULTS } from "@/lib/hw-calculat
 import { getSelectedProductSections } from "@/lib/content-extractor";
 
 const STEPS = [
-  { id: 1, label: "Customer Info" },
-  { id: 2, label: "Products" },
-  { id: 3, label: "Configure" },
-  { id: 4, label: "Pricing" },
-  { id: 5, label: "Generate" },
+  { id: 1, label: "Product & Deploy" },
+  { id: 2, label: "Customer Info" },
+  { id: 3, label: "Products" },
+  { id: 4, label: "Configure" },
+  { id: 5, label: "Pricing" },
+  { id: 6, label: "Generate" },
 ];
 
 const DARK_BLUE = "#1A3A5C";
@@ -42,6 +47,8 @@ const DEFAULT_RETENTION = {
 };
 
 const emptyData: ProposalData = {
+  productLine: "ksafety",
+  deploymentType: "onprem",
   customerName: "",
   city: "",
   country: "",
@@ -62,6 +69,104 @@ const emptyData: ProposalData = {
 
 function fmt(n: number) { return `$${n.toLocaleString("en-US")}`; }
 function round2(n: number) { return Math.round(n * 100) / 100; }
+
+// ─── Step 0 — Product Line & Deployment Type ──────────────────────────────────
+
+function Step0({ data, onChange }: { data: ProposalData; onChange: (d: Partial<ProposalData>) => void }) {
+  const deployOptions: { value: DeploymentType; label: string; desc: string; icon: string }[] = [
+    { value: "onprem",  label: "On-Premises",     desc: "Customer-managed servers in their own data centre or server room", icon: "🏢" },
+    { value: "cloud",   label: "Cloud (SaaS/IaaS)",desc: "Hosted on AWS / Azure / GCP — Kabatone manages the infrastructure", icon: "☁️" },
+  ];
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-xl font-bold" style={{ color: DARK_BLUE }}>Product Line & Deployment</h2>
+        <p className="text-sm text-gray-500 mt-1">
+          Choose the product line and deployment model. This shapes which modules appear and the infrastructure language in the proposal.
+        </p>
+      </div>
+
+      {/* Product line */}
+      <div>
+        <h3 className="text-sm font-bold uppercase tracking-wider mb-3" style={{ color: MID_BLUE }}>Product Line</h3>
+        <div className="grid md:grid-cols-2 gap-3">
+          {(Object.entries(PRODUCT_LINES) as [ProductLine, typeof PRODUCT_LINES[ProductLine]][]).map(([key, pl]) => {
+            const selected = data.productLine === key;
+            return (
+              <button
+                key={key}
+                onClick={() => onChange({ productLine: key, selectedProducts: [] })}
+                className="text-left p-4 rounded-xl border-2 transition-all"
+                style={{
+                  borderColor: selected ? GOLD : "#e5e7eb",
+                  backgroundColor: selected ? "rgba(240,165,0,0.05)" : "white",
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{pl.icon}</span>
+                  <div>
+                    <div className="font-bold text-sm" style={{ color: DARK_BLUE }}>{pl.label}</div>
+                    <div className="text-xs text-gray-500 mt-0.5">{pl.description}</div>
+                  </div>
+                  {selected && (
+                    <div className="ml-auto w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: GOLD }}>
+                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Deployment type */}
+      <div>
+        <h3 className="text-sm font-bold uppercase tracking-wider mb-3" style={{ color: MID_BLUE }}>Deployment Model</h3>
+        <div className="grid md:grid-cols-2 gap-3">
+          {deployOptions.map((opt) => {
+            const selected = data.deploymentType === opt.value;
+            return (
+              <button
+                key={opt.value}
+                onClick={() => onChange({ deploymentType: opt.value })}
+                className="text-left p-4 rounded-xl border-2 transition-all"
+                style={{
+                  borderColor: selected ? MID_BLUE : "#e5e7eb",
+                  backgroundColor: selected ? "rgba(30,107,168,0.05)" : "white",
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{opt.icon}</span>
+                  <div>
+                    <div className="font-bold text-sm" style={{ color: DARK_BLUE }}>{opt.label}</div>
+                    <div className="text-xs text-gray-500 mt-0.5">{opt.desc}</div>
+                  </div>
+                  {selected && (
+                    <div className="ml-auto w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: MID_BLUE }}>
+                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {data.deploymentType === "cloud" && (
+          <div className="mt-3 rounded-lg px-4 py-3 text-sm" style={{ backgroundColor: "rgba(30,107,168,0.08)", color: MID_BLUE }}>
+            <strong>Cloud deployment:</strong> The infrastructure section will describe a managed cloud setup. HW sizing will reflect VM/instance recommendations rather than physical server specs.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 // ─── Step 1 ───────────────────────────────────────────────────────────────────
 
@@ -95,9 +200,11 @@ function Step1({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
   );
 }
 
-// ─── Step 2 — Product selection with inline qty + editable price ──────────────
+// ─── Step 2 (now Step 3) — Product selection with inline qty + editable price ──
 
 function Step2({ data, onChange }: { data: ProposalData; onChange: (d: Partial<ProposalData>) => void }) {
+  // Filter products by the selected product line
+  const allowedProductIds = PRODUCT_LINE_PRODUCTS[data.productLine];
   const toggle = (id: string) => {
     const next = data.selectedProducts.includes(id)
       ? data.selectedProducts.filter((x) => x !== id)
@@ -131,17 +238,24 @@ function Step2({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
     { key: "video",    label: "Video & AI Modules" },
     { key: "app",      label: "Mobile Applications" },
     { key: "services", label: "Professional Services" },
-  ];
+  ].filter((cat) =>
+    PRODUCTS.some((p) => p.category === cat.key && allowedProductIds.includes(p.id))
+  );
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-bold" style={{ color: DARK_BLUE }}>Product Selection & Pricing</h2>
+      <div className="flex items-center gap-3 flex-wrap">
+        <h2 className="text-xl font-bold" style={{ color: DARK_BLUE }}>Product Selection & Pricing</h2>
+        <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ backgroundColor: "rgba(240,165,0,0.15)", color: DARK_BLUE }}>
+          {PRODUCT_LINES[data.productLine].icon} {PRODUCT_LINES[data.productLine].label}
+        </span>
+      </div>
       <p className="text-sm text-gray-500">
         Select products, set quantities, and optionally adjust unit prices for this proposal.
       </p>
 
       {categories.map((cat) => {
-        const catProducts = PRODUCTS.filter((p) => p.category === cat.key);
+        const catProducts = PRODUCTS.filter((p) => p.category === cat.key && allowedProductIds.includes(p.id));
         return (
           <div key={cat.key}>
             <h3 className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: MID_BLUE }}>
@@ -773,7 +887,9 @@ function Step5({
               <InfoRow label="Prepared by"   value={data.salesPerson || "Kabatone Sales"} />
               <InfoRow label="Date"          value={dateStr} />
               <InfoRow label="Ref No."       value={refNum} />
-              <InfoRow label="Model"         value={data.pricingModel === "annual" ? "Annual Subscription" : "Perpetual License"} />
+              <InfoRow label="Product Line"   value={PRODUCT_LINES[data.productLine]?.label ?? data.productLine} />
+              <InfoRow label="Deployment"     value={data.deploymentType === "cloud" ? "Cloud (SaaS/IaaS)" : "On-Premises"} />
+              <InfoRow label="Model"          value={data.pricingModel === "annual" ? "Annual Subscription" : "Perpetual License"} />
             </div>
             <div className="grid md:grid-cols-2 gap-4 mt-4">
               <div className="rounded-lg p-4 border" style={{ borderColor: GOLD, backgroundColor: "rgba(240,165,0,0.04)" }}>
@@ -812,7 +928,20 @@ function Step5({
 
           {/* Section 3 — Infrastructure */}
           <section>
-            <SectionHeading>Section 3 — Infrastructure Requirements</SectionHeading>
+            <SectionHeading>
+              Section 3 — Infrastructure Requirements
+              {data.deploymentType === "cloud" && (
+                <span className="ml-3 text-sm font-normal text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                  ☁️ Cloud Deployment
+                </span>
+              )}
+            </SectionHeading>
+            {data.deploymentType === "cloud" && (
+              <div className="rounded-lg px-4 py-3 text-sm mb-4" style={{ backgroundColor: "rgba(30,107,168,0.08)", color: MID_BLUE }}>
+                This proposal is for a <strong>cloud-hosted deployment</strong>. The VM specifications below represent the recommended instance sizes
+                (e.g., AWS EC2 / Azure VM equivalents). Physical server procurement is not required. Kabatone will coordinate the cloud infrastructure setup.
+              </div>
+            )}
             <div className="overflow-x-auto rounded-xl border border-gray-200 mb-6">
               <table className="w-full text-xs whitespace-nowrap">
                 <thead>
@@ -1007,7 +1136,7 @@ function ProposalWizard() {
           setData({ ...emptyData, ...saved.formData });
           if (saved.narrative) setNarrative(saved.narrative);
           setSavedId(saved.id);
-          setStep(5);
+          setStep(6);
         }
       })
       .catch(() => {})
@@ -1017,8 +1146,9 @@ function ProposalWizard() {
   const update = (partial: Partial<ProposalData>) => setData((d) => ({ ...d, ...partial }));
 
   const canProceed = () => {
-    if (step === 1) return data.customerName && data.city && data.country && data.contactPerson && data.projectName;
-    if (step === 2) return data.selectedProducts.length > 0;
+    if (step === 1) return !!(data.productLine && data.deploymentType);
+    if (step === 2) return !!(data.customerName && data.city && data.country && data.contactPerson && data.projectName);
+    if (step === 3) return data.selectedProducts.length > 0;
     return true;
   };
 
@@ -1071,11 +1201,12 @@ function ProposalWizard() {
       <main className="flex-1 py-10 px-6">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-            {step === 1 && <Step1 data={data} onChange={update} />}
-            {step === 2 && <Step2 data={data} onChange={update} />}
-            {step === 3 && <Step3 data={data} onChange={update} />}
-            {step === 4 && <Step4 data={data} />}
-            {step === 5 && (
+            {step === 1 && <Step0 data={data} onChange={update} />}
+            {step === 2 && <Step1 data={data} onChange={update} />}
+            {step === 3 && <Step2 data={data} onChange={update} />}
+            {step === 4 && <Step3 data={data} onChange={update} />}
+            {step === 5 && <Step4 data={data} />}
+            {step === 6 && (
               <Step5
                 data={data} narrative={narrative} setNarrative={setNarrative}
                 generating={generating} setGenerating={setGenerating}
@@ -1095,7 +1226,7 @@ function ProposalWizard() {
                   ← Home
                 </Link>
               )}
-              {step < 5 && (
+              {step < 6 && (
                 <button
                   onClick={() => setStep(step + 1)}
                   disabled={!canProceed()}
