@@ -4,8 +4,8 @@ const DARK_BLUE = "#1A3A5C";
 const GOLD      = "#F0A500";
 const MID_BLUE  = "#1E6BA8";
 
-export const APP_VERSION = "1.3.0";
-export const RELEASE_DATE = "2026-04-08";
+const APP_VERSION = "1.3.0";
+const RELEASE_DATE = "2026-04-08";
 
 const CHANGELOG = [
   {
