@@ -45,13 +45,9 @@ export async function GET() {
   try {
     const col = await getProposalsCollection();
     const all = await col
-      .find({})
+      .find({}, { projection: { _id: 0, formData: 0 } })
       .sort({ dateCreated: -1 })
-      .project<Omit<SavedProposal, "formData">>({
-        _id: 0,
-        formData: 0,   // exclude heavy field for list view
-      })
-      .toArray();
+      .toArray() as Omit<SavedProposal, "formData">[];
     return NextResponse.json(all);
   } catch (err) {
     console.error("GET proposals error:", err);

@@ -23,7 +23,7 @@ import {
   getPriceKey,
   isDefaultPrice,
 } from "@/lib/default-prices";
-import { calculateHW, buildHWInput, SUBSYSTEM_DEFAULTS } from "@/lib/hw-calculator";
+import { calculateHW, buildHWInput, SUBSYSTEM_DEFAULTS, VMSpec } from "@/lib/hw-calculator";
 import { getSelectedProductSections } from "@/lib/content-extractor";
 
 const STEPS = [
@@ -64,6 +64,7 @@ const emptyData: ProposalData = {
   customPrices: {},
   pricingModel: "annual",
   haMode: false,
+  discount: 0,
   videoBitrateMbps: 4,
   retentionDays: { ...DEFAULT_RETENTION },
 };
@@ -513,7 +514,7 @@ function Step3({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
             </button>
             <div>
               <div className="text-sm font-semibold" style={{ color: DARK_BLUE }}>High Availability (HA) Mode</div>
-              <div className="text-xs text-gray-500">Adds an additional app server for failover (+1 VM)</div>
+              <div className="text-xs text-gray-500">Full HA: dual AD, dedicated integration servers, 3-node Elasticsearch cluster, dual web servers</div>
             </div>
           </div>
 
@@ -581,10 +582,36 @@ function StoragePill({ label, value, bold }: { label: string; value: string; bol
 
 // ─── Step 4 — Pricing Summary ─────────────────────────────────────────────────
 
-function Step4({ data }: { data: ProposalData }) {
-  const pricing = calculatePricing(data);
-  const hw      = calculateHW(buildHWInput(data));
+function Step4({
+  data,
+  onChange,
+  vmRows,
+  setVmRows,
+}: {
+  data: ProposalData;
+  onChange: (d: Partial<ProposalData>) => void;
+  vmRows: VMSpec[];
+  setVmRows: (rows: VMSpec[]) => void;
+}) {
+  const pricing     = calculatePricing(data);
   const hasModified = pricing.lineItems.some((i) => i.isModified);
+  const discount    = data.discount ?? 0;
+  const factor      = 1 - discount / 100;
+  const discAnn     = Math.round(pricing.annualTotal        * factor);
+  const discPerp    = Math.round(pricing.perpetualTotal     * factor);
+  const disc5Ann    = Math.round(pricing.fiveYearAnnual     * factor);
+  const disc5Per    = Math.round(pricing.fiveYearPerpetual  * factor);
+  const discYr2     = Math.round(pricing.year2SupportAnnual * factor);
+
+  const updateRow = (i: number, field: keyof VMSpec, val: string | number) =>
+    setVmRows(vmRows.map((r, idx) => (idx === i ? { ...r, [field]: val } : r)));
+  const deleteRow = (i: number) => setVmRows(vmRows.filter((_, idx) => idx !== i));
+  const addRow = () => setVmRows([...vmRows, {
+    group: "Custom", serverName: "", vmPhysical: "VM", amount: 1,
+    os: "Windows Server 2022", vCores: 8, ramGB: 16,
+    localDiskGB: 100, storageGB: 0, comments: "",
+  }]);
+  const resetRows = () => setVmRows(calculateHW(buildHWInput(data)).vmSpecs);
 
   return (
     <div className="space-y-8">
@@ -668,15 +695,30 @@ function Step4({ data }: { data: ProposalData }) {
               </tr>
             )}
 
-            {/* Grand Total */}
+            {/* Grand Total — with inline discount input */}
             <tr style={{ backgroundColor: DARK_BLUE }}>
-              <td colSpan={3} className="px-4 py-3 text-right font-black text-white">GRAND TOTAL</td>
+              <td colSpan={2} className="px-4 py-3 text-right font-black text-white">GRAND TOTAL</td>
+              <td className="px-4 py-3 text-center">
+                <div className="flex items-center justify-center gap-1.5">
+                  <span className="text-white text-xs font-semibold">Discount:</span>
+                  <input
+                    type="number" min={0} max={100} step={0.5}
+                    value={discount}
+                    onChange={(e) => onChange({ discount: Math.max(0, Math.min(100, parseFloat(e.target.value) || 0)) })}
+                    className="w-14 rounded px-1.5 py-0.5 text-xs text-center focus:outline-none"
+                    style={{ backgroundColor: "rgba(255,255,255,0.2)", color: "white", border: "1px solid rgba(255,255,255,0.4)" }}
+                  />
+                  <span className="text-white text-xs">%</span>
+                </div>
+              </td>
               <td className="px-4 py-3 text-right font-black text-white text-base">
-                {fmt(pricing.annualTotal)}
+                {discount > 0 && <div className="text-xs line-through opacity-50">{fmt(pricing.annualTotal)}</div>}
+                {fmt(discAnn)}
                 <div className="text-xs font-normal opacity-70">/year</div>
               </td>
               <td className="px-4 py-3 text-right font-black text-white text-base">
-                {fmt(pricing.perpetualTotal)}
+                {discount > 0 && <div className="text-xs line-through opacity-50">{fmt(pricing.perpetualTotal)}</div>}
+                {fmt(discPerp)}
                 <div className="text-xs font-normal opacity-70">one-time</div>
               </td>
             </tr>
@@ -689,65 +731,112 @@ function Step4({ data }: { data: ProposalData }) {
         )}
       </div>
 
-      {/* 5-Year Cost Comparison */}
+      {/* 5-Year Cost Comparison — discounted values */}
       <div className="rounded-xl border-2 p-6 space-y-4" style={{ borderColor: GOLD }}>
         <h3 className="font-black text-base uppercase tracking-wider" style={{ color: DARK_BLUE }}>
           5-Year Total Cost Comparison
+          {discount > 0 && <span className="ml-2 text-sm font-normal text-green-600">({discount}% discount applied)</span>}
         </h3>
         <div className="grid md:grid-cols-2 gap-4">
           <div className="rounded-lg bg-blue-50 border border-blue-100 p-4">
             <div className="text-xs text-gray-500 mb-1">Annual Model</div>
-            <div className="text-sm text-gray-600">{fmt(pricing.annualTotal)} × 5 years</div>
-            <div className="text-2xl font-black mt-1" style={{ color: MID_BLUE }}>{fmt(pricing.fiveYearAnnual)}</div>
+            <div className="text-sm text-gray-600">{fmt(discAnn)} × 5 years</div>
+            <div className="text-2xl font-black mt-1" style={{ color: MID_BLUE }}>{fmt(disc5Ann)}</div>
           </div>
           <div className="rounded-lg bg-gray-50 border border-gray-200 p-4">
             <div className="text-xs text-gray-500 mb-1">Perpetual Model</div>
             <div className="text-sm text-gray-600">
-              {fmt(pricing.perpetualTotal)} + {fmt(pricing.year2SupportAnnual)}/yr support × 4
+              {fmt(discPerp)} + {fmt(discYr2)}/yr support × 4
             </div>
-            <div className="text-2xl font-black mt-1" style={{ color: DARK_BLUE }}>{fmt(pricing.fiveYearPerpetual)}</div>
+            <div className="text-2xl font-black mt-1" style={{ color: DARK_BLUE }}>{fmt(disc5Per)}</div>
           </div>
         </div>
-        {pricing.fiveYearAnnual < pricing.fiveYearPerpetual && (
+        {disc5Ann < disc5Per && (
           <div
             className="flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold"
             style={{ backgroundColor: "rgba(255,255,255,0.12)", color: DARK_BLUE }}
           >
             <span style={{ color: GOLD }}>💰</span>
-            You save <strong style={{ color: GOLD }}>{fmt(pricing.fiveYearPerpetual - pricing.fiveYearAnnual)}</strong> over 5 years with the Annual Subscription model.
+            You save <strong style={{ color: GOLD }}>{fmt(disc5Per - disc5Ann)}</strong> over 5 years with the Annual Subscription model.
           </div>
         )}
       </div>
 
-      {/* VM table (compact) */}
-      {hw.vmSpecs.length > 0 && (
-        <div>
-          <h3 className="font-bold text-base mb-3" style={{ color: DARK_BLUE }}>VM Infrastructure ({hw.totals.totalVMs} VMs)</h3>
-          <div className="overflow-x-auto rounded-xl border border-gray-200">
-            <table className="w-full text-xs whitespace-nowrap">
-              <thead>
-                <tr style={{ backgroundColor: DARK_BLUE }}>
-                  {["Server Name","OS","vCores","RAM","Storage","Comments"].map(h => (
-                    <th key={h} className="text-left px-3 py-2 text-white font-semibold">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {hw.vmSpecs.map((vm, i) => (
-                  <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                    <td className="px-3 py-1.5 font-mono font-semibold">{vm.serverName}</td>
-                    <td className="px-3 py-1.5">{vm.os}</td>
-                    <td className="px-3 py-1.5 text-center">{vm.vCores}</td>
-                    <td className="px-3 py-1.5 text-center">{vm.ramGB} GB</td>
-                    <td className="px-3 py-1.5 text-center">{vm.storageGB > 0 ? `${vm.storageGB} GB` : "—"}</td>
-                    <td className="px-3 py-1.5 text-gray-500">{vm.comments}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {/* VM Infrastructure — fully editable */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-bold text-base" style={{ color: DARK_BLUE }}>VM Infrastructure ({vmRows.length} VMs)</h3>
+          <div className="flex gap-2">
+            <button onClick={resetRows}
+              className="px-3 py-1.5 text-xs font-semibold rounded-lg border-2 transition-all hover:bg-gray-50"
+              style={{ borderColor: DARK_BLUE, color: DARK_BLUE }}>
+              Reset to Calculated
+            </button>
+            <button onClick={addRow}
+              className="px-3 py-1.5 text-xs font-bold rounded-lg text-white"
+              style={{ backgroundColor: MID_BLUE }}>
+              + Add Row
+            </button>
           </div>
         </div>
-      )}
+        <div className="overflow-x-auto rounded-xl border border-gray-200">
+          <table className="w-full text-xs whitespace-nowrap">
+            <thead>
+              <tr style={{ backgroundColor: DARK_BLUE }}>
+                {["Server Name","OS","vCores","RAM GB","Local GB","Storage GB","Comments",""].map((h, idx) => (
+                  <th key={idx} className="text-left px-2 py-2 text-white font-semibold">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {vmRows.map((vm, i) => (
+                <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                  <td className="px-2 py-1">
+                    <input value={vm.serverName} onChange={(e) => updateRow(i, "serverName", e.target.value)}
+                      className="w-28 border rounded px-1.5 py-0.5 font-mono text-xs focus:outline-none focus:ring-1"
+                      style={{ borderColor: "#d1d5db" }} />
+                  </td>
+                  <td className="px-2 py-1">
+                    <input value={vm.os} onChange={(e) => updateRow(i, "os", e.target.value)}
+                      className="w-36 border rounded px-1.5 py-0.5 text-xs focus:outline-none focus:ring-1"
+                      style={{ borderColor: "#d1d5db" }} />
+                  </td>
+                  <td className="px-2 py-1">
+                    <input type="number" value={vm.vCores} onChange={(e) => updateRow(i, "vCores", parseInt(e.target.value) || 0)}
+                      className="w-12 border rounded px-1.5 py-0.5 text-xs text-center focus:outline-none focus:ring-1"
+                      style={{ borderColor: "#d1d5db" }} />
+                  </td>
+                  <td className="px-2 py-1">
+                    <input type="number" value={vm.ramGB} onChange={(e) => updateRow(i, "ramGB", parseInt(e.target.value) || 0)}
+                      className="w-14 border rounded px-1.5 py-0.5 text-xs text-center focus:outline-none focus:ring-1"
+                      style={{ borderColor: "#d1d5db" }} />
+                  </td>
+                  <td className="px-2 py-1">
+                    <input type="number" value={vm.localDiskGB} onChange={(e) => updateRow(i, "localDiskGB", parseInt(e.target.value) || 0)}
+                      className="w-14 border rounded px-1.5 py-0.5 text-xs text-center focus:outline-none focus:ring-1"
+                      style={{ borderColor: "#d1d5db" }} />
+                  </td>
+                  <td className="px-2 py-1">
+                    <input type="number" value={vm.storageGB} onChange={(e) => updateRow(i, "storageGB", parseInt(e.target.value) || 0)}
+                      className="w-16 border rounded px-1.5 py-0.5 text-xs text-center focus:outline-none focus:ring-1"
+                      style={{ borderColor: "#d1d5db" }} />
+                  </td>
+                  <td className="px-2 py-1">
+                    <input value={vm.comments} onChange={(e) => updateRow(i, "comments", e.target.value)}
+                      className="w-48 border rounded px-1.5 py-0.5 text-xs focus:outline-none focus:ring-1"
+                      style={{ borderColor: "#d1d5db" }} />
+                  </td>
+                  <td className="px-2 py-1">
+                    <button onClick={() => deleteRow(i)}
+                      className="w-6 h-6 flex items-center justify-center rounded text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                      title="Remove row">×</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
@@ -762,6 +851,7 @@ function Step5({
   setGenerating,
   savedId,
   setSavedId,
+  vmRows,
 }: {
   data: ProposalData;
   narrative: string;
@@ -770,13 +860,23 @@ function Step5({
   setGenerating: (b: boolean) => void;
   savedId: string | null;
   setSavedId: (id: string | null) => void;
+  vmRows: VMSpec[];
 }) {
-  const [saving, setSaving] = useState(false);
+  const [saving, setSaving]     = useState(false);
+  const [currency, setCurrency] = useState("USD");
   const pricing  = calculatePricing(data);
-  const hw       = calculateHW(buildHWInput(data));
   const sections = getSelectedProductSections(data.selectedProducts);
   const dateStr  = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   const refNum   = savedId ?? `KSP-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, "0")}-DRAFT`;
+
+  const fmtCurrency = (usd: number) => {
+    const rates: Record<string, number> = { USD: 1,   NIS: 3.7,  MXN: 17.5 };
+    const syms:  Record<string, string> = { USD: "$", NIS: "₪",  MXN: "MX$" };
+    return `${syms[currency]}${Math.round(usd * rates[currency]).toLocaleString("en-US")}`;
+  };
+
+  // Used only for subsystem storage summary (vmSpecs come from vmRows prop)
+  const hw = calculateHW(buildHWInput(data));
 
   // Internal save helper — used by both auto-save and the manual button
   const persistProposal = async (narrativeText: string, existingId: string | null): Promise<string | null> => {
@@ -859,14 +959,19 @@ function Step5({
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h2 className="text-xl font-bold" style={{ color: DARK_BLUE }}>Generate Proposal</h2>
-          <p className="text-sm text-gray-500">Generate AI summary, save to history, then export.</p>
+          <p className="text-sm text-gray-500">Review the proposal preview, then save and export.</p>
         </div>
-        <div className="flex gap-2 flex-wrap">
-          <button onClick={generateNarrative} disabled={generating}
-            className="flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-sm disabled:opacity-60 shadow-md"
-            style={{ backgroundColor: GOLD, color: DARK_BLUE }}>
-            {generating ? "Generating…" : "Generate AI Summary"}
-          </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Currency selector */}
+          <select
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value)}
+            className="px-3 py-2 rounded-lg border-2 text-sm font-semibold focus:outline-none cursor-pointer"
+            style={{ borderColor: DARK_BLUE, color: DARK_BLUE }}>
+            <option value="USD">$ USD</option>
+            <option value="NIS">₪ NIS</option>
+            <option value="MXN">MX$ MXN</option>
+          </select>
           <button onClick={saveToHistory} disabled={saving}
             className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm border-2 disabled:opacity-60"
             style={{ borderColor: DARK_BLUE, color: DARK_BLUE }}>
@@ -918,12 +1023,12 @@ function Step5({
             <div className="grid md:grid-cols-2 gap-4 mt-4">
               <div className="rounded-lg p-4 border" style={{ borderColor: GOLD, backgroundColor: "rgba(255,255,255,0.04)" }}>
                 <div className="text-xs text-gray-500">Annual Investment</div>
-                <div className="text-2xl font-bold mt-1" style={{ color: DARK_BLUE }}>{fmt(pricing.annualTotal)}</div>
+                <div className="text-2xl font-bold mt-1" style={{ color: DARK_BLUE }}>{fmtCurrency(pricing.annualTotal)}</div>
                 <div className="text-xs text-gray-400">per year</div>
               </div>
               <div className="rounded-lg p-4 border border-gray-200">
                 <div className="text-xs text-gray-500">Perpetual Investment</div>
-                <div className="text-2xl font-bold mt-1" style={{ color: MID_BLUE }}>{fmt(pricing.perpetualTotal)}</div>
+                <div className="text-2xl font-bold mt-1" style={{ color: MID_BLUE }}>{fmtCurrency(pricing.perpetualTotal)}</div>
                 <div className="text-xs text-gray-400">one-time license</div>
               </div>
             </div>
@@ -976,7 +1081,7 @@ function Step5({
                   </tr>
                 </thead>
                 <tbody>
-                  {hw.vmSpecs.map((vm, i) => (
+                  {vmRows.map((vm, i) => (
                     <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                       <td className="px-2 py-1.5 font-medium" style={{ color: MID_BLUE }}>{vm.group}</td>
                       <td className="px-2 py-1.5 font-mono">{vm.serverName}</td>
@@ -992,7 +1097,7 @@ function Step5({
                   ))}
                   <tr style={{ backgroundColor: "rgba(26,58,92,0.07)" }} className="font-bold">
                     <td colSpan={3} className="px-2 py-2 text-right" style={{ color: DARK_BLUE }}>TOTAL</td>
-                    <td className="px-2 py-2 text-center" style={{ color: GOLD }}>{hw.totals.totalVMs}</td>
+                    <td className="px-2 py-2 text-center" style={{ color: GOLD }}>{vmRows.reduce((s, v) => s + v.amount, 0)}</td>
                     <td colSpan={6} />
                   </tr>
                 </tbody>
@@ -1051,17 +1156,17 @@ function Step5({
                       {item.name}{item.isModified && <span className="ml-1 text-yellow-600 text-xs font-bold">*</span>}
                     </td>
                     <td className="px-3 py-2 border-b border-gray-100 text-center">{item.quantity}</td>
-                    <td className="px-3 py-2 border-b border-gray-100 text-right">{fmt(item.annualUnit)}</td>
-                    <td className="px-3 py-2 border-b border-gray-100 text-right">{fmt(item.annualTotal)}</td>
+                    <td className="px-3 py-2 border-b border-gray-100 text-right">{fmtCurrency(item.annualUnit)}</td>
+                    <td className="px-3 py-2 border-b border-gray-100 text-right">{fmtCurrency(item.annualTotal)}</td>
                     <td className="px-3 py-2 border-b border-gray-100 text-right">
-                      {item.isService ? <span className="text-gray-400 text-xs">one-time</span> : fmt(item.perpetualTotal)}
+                      {item.isService ? <span className="text-gray-400 text-xs">one-time</span> : fmtCurrency(item.perpetualTotal)}
                     </td>
                   </tr>
                 ))}
                 <tr className="font-bold" style={{ backgroundColor: "rgba(26,58,92,0.08)" }}>
                   <td colSpan={3} className="px-3 py-2 text-right" style={{ color: DARK_BLUE }}>GRAND TOTAL</td>
-                  <td className="px-3 py-2 text-right" style={{ color: DARK_BLUE }}>{fmt(pricing.annualTotal)}/yr</td>
-                  <td className="px-3 py-2 text-right" style={{ color: DARK_BLUE }}>{fmt(pricing.perpetualTotal)}</td>
+                  <td className="px-3 py-2 text-right" style={{ color: DARK_BLUE }}>{fmtCurrency(pricing.annualTotal)}/yr</td>
+                  <td className="px-3 py-2 text-right" style={{ color: DARK_BLUE }}>{fmtCurrency(pricing.perpetualTotal)}</td>
                 </tr>
               </tbody>
             </table>
@@ -1072,10 +1177,10 @@ function Step5({
                   border: `1px solid ${pricing.fiveYearAnnual <= pricing.fiveYearPerpetual ? "#bfdbfe" : "#fed7aa"}`,
                 }}>
                 <div className="text-xs text-gray-500">Annual × 5 years</div>
-                <div className="text-xl font-bold mt-1" style={{ color: MID_BLUE }}>{fmt(pricing.fiveYearAnnual)}</div>
+                <div className="text-xl font-bold mt-1" style={{ color: MID_BLUE }}>{fmtCurrency(pricing.fiveYearAnnual)}</div>
                 {pricing.fiveYearAnnual < pricing.fiveYearPerpetual && (
                   <div className="text-xs font-semibold text-green-600 mt-1">
-                    Save {fmt(pricing.fiveYearPerpetual - pricing.fiveYearAnnual)} vs. perpetual
+                    Save {fmtCurrency(pricing.fiveYearPerpetual - pricing.fiveYearAnnual)} vs. perpetual
                   </div>
                 )}
               </div>
@@ -1085,25 +1190,32 @@ function Step5({
                   border: `1px solid ${pricing.fiveYearPerpetual < pricing.fiveYearAnnual ? "#bfdbfe" : "#e5e7eb"}`,
                 }}>
                 <div className="text-xs text-gray-500">Perpetual + 4yr support</div>
-                <div className="text-xl font-bold mt-1" style={{ color: DARK_BLUE }}>{fmt(pricing.fiveYearPerpetual)}</div>
-                <div className="text-xs text-gray-400 mt-1">{fmt(pricing.year2SupportAnnual)}/yr from Year 2</div>
+                <div className="text-xl font-bold mt-1" style={{ color: DARK_BLUE }}>{fmtCurrency(pricing.fiveYearPerpetual)}</div>
+                <div className="text-xs text-gray-400 mt-1">{fmtCurrency(pricing.year2SupportAnnual)}/yr from Year 2</div>
                 {pricing.fiveYearPerpetual < pricing.fiveYearAnnual && (
                   <div className="text-xs font-semibold text-green-600 mt-1">
-                    Save {fmt(pricing.fiveYearAnnual - pricing.fiveYearPerpetual)} vs. annual
+                    Save {fmtCurrency(pricing.fiveYearAnnual - pricing.fiveYearPerpetual)} vs. annual
                   </div>
                 )}
               </div>
             </div>
           </section>
 
-          {/* Section 5 — Next Steps */}
+          {/* Section 5 — Generative AI Summary */}
           <section>
-            <SectionHeading>Section 5 — Next Steps</SectionHeading>
+            <SectionHeading>Section 5 — Generative AI Summary</SectionHeading>
+            <div className="mb-4">
+              <button onClick={generateNarrative} disabled={generating}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold text-sm disabled:opacity-60 shadow-sm transition-opacity"
+                style={{ backgroundColor: DARK_BLUE, color: "white" }}>
+                {generating ? "Generating…" : "✨ Generate AI Summary"}
+              </button>
+            </div>
             {narrative ? (
               <p className="text-sm text-gray-700 leading-relaxed">{narrative}</p>
             ) : (
               <div className="italic text-gray-400 text-sm py-6 text-center bg-gray-50 rounded-lg">
-                No summary generated yet.
+                No AI summary yet. Click the button above to generate an executive summary.
               </div>
             )}
           </section>
@@ -1147,6 +1259,15 @@ function ProposalWizard() {
   const [generating, setGenerating]   = useState(false);
   const [savedId, setSavedId]         = useState<string | null>(null);
   const [loading, setLoading]         = useState(false);
+  const [vmRows, setVmRows]           = useState<VMSpec[]>([]);
+
+  // Initialize vmRows when the user reaches the pricing step for the first time
+  useEffect(() => {
+    if (step === 5 && vmRows.length === 0) {
+      setVmRows(calculateHW(buildHWInput(data)).vmSpecs);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
   // Pre-fill from history when ?id=PROP-xxx is present
   useEffect(() => {
@@ -1244,12 +1365,13 @@ function ProposalWizard() {
             {step === 2 && <Step1 data={data} onChange={update} />}
             {step === 3 && <Step2 data={data} onChange={update} />}
             {step === 4 && <Step3 data={data} onChange={update} />}
-            {step === 5 && <Step4 data={data} />}
+            {step === 5 && <Step4 data={data} onChange={update} vmRows={vmRows} setVmRows={setVmRows} />}
             {step === 6 && (
               <Step5
                 data={data} narrative={narrative} setNarrative={setNarrative}
                 generating={generating} setGenerating={setGenerating}
                 savedId={savedId} setSavedId={setSavedId}
+                vmRows={vmRows}
               />
             )}
 

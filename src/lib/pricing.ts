@@ -146,14 +146,13 @@ export const SERVICES_PRICING: Record<ServicesPackage, { label: string; price: n
   full:         { label: "Full Implementation (1 month)",          price: 15000 },
 };
 
-export type ProductLine = "ksafety" | "kvideo" | "kdispatch" | "kanalytics";
+export type ProductLine = "ksafety" | "kvideo" | "kdispatch";
 export type DeploymentType = "onprem" | "cloud";
 
 export const PRODUCT_LINES: Record<ProductLine, { label: string; description: string; icon: string }> = {
-  ksafety:    { label: "K-Safety",     description: "Command & Control platform — full smart city safety suite", icon: "🛡️" },
-  kvideo:     { label: "K-Video",      description: "Video surveillance, LPR, face recognition & AI analytics",  icon: "📹" },
-  kdispatch:  { label: "K-Dispatch",   description: "First-responder dispatch, K-React mobile & CAD integration", icon: "🚨" },
-  kanalytics: { label: "K-Analytics",  description: "IoT sensor management, BI dashboards & smart city data",    icon: "📊" },
+  ksafety:   { label: "K-Safety",   description: "Command & Control platform — full smart city safety suite", icon: "🛡️" },
+  kvideo:    { label: "K-Video",    description: "Video surveillance, LPR, face recognition & AI analytics",  icon: "📹" },
+  kdispatch: { label: "K-Dispatch", description: "First-responder dispatch, K-React mobile & CAD integration", icon: "🚨" },
 };
 
 export interface ProposalData {
@@ -189,6 +188,9 @@ export interface ProposalData {
     iot: number;
     cctv: number;
   };
+
+  // Step 4 — Discount
+  discount?: number;   // percentage 0–100, applied to licence total
 
   // Step 5 — Generated content
   aiNarrative?: string;
@@ -327,8 +329,7 @@ export { DEFAULT_ANNUAL_PRICES, PERP_MULTIPLIER, SUPPORT_PCT, getPriceKey };
 
 /** Products available per product line (used to filter Step 2 selection) */
 export const PRODUCT_LINE_PRODUCTS: Record<ProductLine, string[]> = {
-  ksafety:    ["core","cctv","lpr","face","analytics","users","iot","kshare","kreact","services"],
-  kvideo:     ["cctv","lpr","face","analytics","users","services"],
-  kdispatch:  ["core","kreact","kshare","users","services"],
-  kanalytics: ["core","iot","users","services"],
+  ksafety:   ["core","cctv","lpr","face","analytics","users","iot","kshare","kreact","services"],
+  kvideo:    ["cctv","lpr","face","analytics","users","services"],
+  kdispatch: ["core","kreact","kshare","users","services"],
 };

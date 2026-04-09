@@ -237,13 +237,13 @@ export function calculateHW(input: HWCalcInput): HWCalcResult {
   // NOTE: cctvChannels excluded from server-count calculation (3rd party VMS)
   const totalChannels = input.lprChannels + input.frChannels + input.vaChannels;
   let appServerCount = 3;
-  if (input.haMode)                            appServerCount++;
-  if (input.lprChannels > 300)                 appServerCount++;
-  if (input.frChannels > 100)                  appServerCount++;
-  if (totalChannels > 500)                     appServerCount++;
-
-  // Clamp to max defined comment labels
-  appServerCount = Math.min(appServerCount, 5);
+  if (!input.haMode) {
+    // In standard mode: add generic capacity servers for large deployments
+    if (input.lprChannels > 300) appServerCount++;
+    if (input.frChannels > 100)  appServerCount++;
+    if (totalChannels > 500)     appServerCount++;
+    appServerCount = Math.min(appServerCount, 5);
+  }
 
   const APP_COMMENTS = [
     "Permission, RBE, Events, Sync, UI_DATA, VMS",
@@ -269,6 +269,22 @@ export function calculateHW(input: HWCalcInput): HWCalcResult {
     storageGB: 0,
     comments: "Active Directory, PKI, DNS | C: 100GB OS",
   });
+
+  // HA: second AD server immediately after primary
+  if (input.haMode) {
+    vmSpecs.push({
+      group: "Infrastructure",
+      serverName: "K1-AD-PKI-02",
+      vmPhysical: "VM",
+      amount: 1,
+      os: "Windows Server 2022",
+      vCores: 8,
+      ramGB: 8,
+      localDiskGB: 100,
+      storageGB: 0,
+      comments: "Active Directory replica (HA), PKI | C: 100GB OS",
+    });
+  }
 
   vmSpecs.push({
     group: "Infrastructure",
@@ -300,6 +316,34 @@ export function calculateHW(input: HWCalcInput): HWCalcResult {
     });
   }
 
+  // ── HA: Dedicated per-integration app servers ──────────────────────────────
+  if (input.haMode) {
+    if (input.lprChannels > 0)
+      vmSpecs.push({
+        group: "Application", serverName: "K1-APP-LPR-01", vmPhysical: "VM", amount: 1,
+        os: "Windows Server 2022", vCores: 16, ramGB: 32, localDiskGB: 100, storageGB: 0,
+        comments: "LPR dedicated application server | C: 100GB OS",
+      });
+    if (input.frChannels > 0)
+      vmSpecs.push({
+        group: "Application", serverName: "K1-APP-FR-01", vmPhysical: "VM", amount: 1,
+        os: "Windows Server 2022", vCores: 16, ramGB: 32, localDiskGB: 100, storageGB: 0,
+        comments: "Face Recognition dedicated application server | C: 100GB OS",
+      });
+    if (input.vaChannels > 0)
+      vmSpecs.push({
+        group: "Application", serverName: "K1-APP-VA-01", vmPhysical: "VM", amount: 1,
+        os: "Windows Server 2022", vCores: 16, ramGB: 32, localDiskGB: 100, storageGB: 0,
+        comments: "Video Analytics dedicated application server | C: 100GB OS",
+      });
+    if (input.hasKShare || input.hasKReact)
+      vmSpecs.push({
+        group: "Application", serverName: "K1-APP-MOB-01", vmPhysical: "VM", amount: 1,
+        os: "Windows Server 2022", vCores: 16, ramGB: 32, localDiskGB: 100, storageGB: 0,
+        comments: "K-Share/K-React mobile services | C: 100GB OS",
+      });
+  }
+
   // ── Database ───────────────────────────────────────────────────────────────
 
   // Object storage placement: < 1TB → extend SQL G: drive; ≥ 1TB → dedicated appliance
@@ -323,18 +367,37 @@ export function calculateHW(input: HWCalcInput): HWCalcResult {
 
   // ── Search ─────────────────────────────────────────────────────────────────
 
-  vmSpecs.push({
-    group: "Search",
-    serverName: "K1-ELK-01",
-    vmPhysical: "VM",
-    amount: 1,
-    os: "Ubuntu 24.04",
-    vCores: 8,
-    ramGB: 16,
-    localDiskGB: 100,
-    storageGB: elkDiskGB,
-    comments: "Elasticsearch metadata indexing | /: 100GB OS, /data SAN",
-  });
+  if (input.haMode) {
+    // 3-node ELK cluster — each node holds 1/3 of total with 1.2× overhead
+    const elkNodeGB = Math.max(200, Math.ceil((esStorageGB * 1.2) / 3));
+    for (let n = 1; n <= 3; n++) {
+      vmSpecs.push({
+        group: "Search",
+        serverName: `K1-ELK-0${n}`,
+        vmPhysical: "VM",
+        amount: 1,
+        os: "Ubuntu 24.04",
+        vCores: 8,
+        ramGB: 16,
+        localDiskGB: 100,
+        storageGB: elkNodeGB,
+        comments: `Elasticsearch node ${n}/3 (HA cluster) | /: 100GB OS, /data SAN`,
+      });
+    }
+  } else {
+    vmSpecs.push({
+      group: "Search",
+      serverName: "K1-ELK-01",
+      vmPhysical: "VM",
+      amount: 1,
+      os: "Ubuntu 24.04",
+      vCores: 8,
+      ramGB: 16,
+      localDiskGB: 100,
+      storageGB: elkDiskGB,
+      comments: "Elasticsearch metadata indexing | /: 100GB OS, /data SAN",
+    });
+  }
 
   // ── Web ────────────────────────────────────────────────────────────────────
 
@@ -350,6 +413,21 @@ export function calculateHW(input: HWCalcInput): HWCalcResult {
     storageGB: 0,
     comments: "NGINX + MongoDB + BFF | /: 200GB (OS + app + MongoDB data)",
   });
+
+  if (input.haMode) {
+    vmSpecs.push({
+      group: "Web",
+      serverName: "K1-WEB-02",
+      vmPhysical: "VM",
+      amount: 1,
+      os: "Ubuntu 24.04",
+      vCores: 8,
+      ramGB: 32,
+      localDiskGB: 200,
+      storageGB: 0,
+      comments: "NGINX + MongoDB + BFF (HA replica) | /: 200GB (OS + app + MongoDB data)",
+    });
+  }
 
   // ── Monitoring (Zabbix) ────────────────────────────────────────────────────
 
