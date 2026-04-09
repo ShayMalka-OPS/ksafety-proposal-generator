@@ -6,7 +6,7 @@
   --background: #F8FAFC;
   --foreground: #4A5568;
   --primary:    #1A3A5C;
-  --accent:     #F0A500;
+  --accent:     #FFFFFF;
   --secondary:  #1E6BA8;
   --success:    #27AE60;
   --danger:     #E74C3C;
@@ -49,7 +49,7 @@ label {
   }
   /* Brand button helpers */
   .btn-primary {
-    background-color: #F0A500;
+    background-color: #FFFFFF;
     color: #1A3A5C;
     font-weight: 700;
     border-radius: 6px;

@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 const DARK_BLUE = "#1A3A5C";
-const GOLD      = "#F0A500";
+const GOLD      = "#FFFFFF";
 const MID_BLUE  = "#1E6BA8";
 
 const APP_VERSION = "1.3.0";
@@ -136,7 +136,7 @@ export default function AboutPage() {
           <h2 className="text-lg font-bold mb-4" style={{ color: DARK_BLUE }}>Contact & Support</h2>
           <div className="space-y-4 text-sm">
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ backgroundColor: "rgba(240,165,0,0.12)" }}>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ backgroundColor: "rgba(255,255,255,0.12)" }}>
                 <span>✉️</span>
               </div>
               <div>

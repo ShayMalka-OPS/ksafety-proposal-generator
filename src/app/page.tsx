@@ -12,14 +12,14 @@ export default function Home() {
           <div className="max-w-3xl mx-auto">
             <div
               className="inline-block text-sm font-semibold px-4 py-1 rounded-full mb-6 tracking-wider"
-              style={{ backgroundColor: "rgba(240,165,0,0.2)", color: "#F0A500", border: "1px solid rgba(240,165,0,0.4)" }}
+              style={{ backgroundColor: "rgba(255,255,255,0.2)", color: "#FFFFFF", border: "1px solid rgba(255,255,255,0.4)" }}
             >
               K-SAFETY PLATFORM
             </div>
-            <h1 className="text-5xl font-bold mb-6 leading-tight">
+            <h1 className="text-5xl font-bold mb-6 leading-tight" style={{ color: "#FFFFFF" }}>
               K-Safety Proposal
               <br />
-              <span style={{ color: "#F0A500" }}>Generator</span>
+              Generator
             </h1>
             <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
               Create professional, AI-powered proposals for the K-Safety smart city
@@ -30,7 +30,7 @@ export default function Home() {
               <Link
                 href="/proposal"
                 className="inline-flex items-center gap-2 px-8 py-4 rounded-lg font-bold text-lg transition-all hover:opacity-90 hover:scale-105"
-                style={{ backgroundColor: "#F0A500", color: "#1A3A5C" }}
+                style={{ backgroundColor: "#FFFFFF", color: "#1A3A5C" }}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -123,7 +123,7 @@ export default function Home() {
           <Link
             href="/proposal"
             className="inline-flex items-center gap-2 px-8 py-4 rounded-lg font-bold text-lg transition-all hover:opacity-90"
-            style={{ backgroundColor: "#F0A500", color: "#1A3A5C" }}
+            style={{ backgroundColor: "#FFFFFF", color: "#1A3A5C" }}
           >
             Get Started →
           </Link>

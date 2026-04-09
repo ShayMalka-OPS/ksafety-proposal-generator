@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 
 const DARK_BLUE = "#1A3A5C";
-const GOLD      = "#F0A500";
+const GOLD      = "#FFFFFF";
 const MID_BLUE  = "#1E6BA8";
 
 type ProposalStatus = "Draft" | "Sent" | "Won" | "Lost";

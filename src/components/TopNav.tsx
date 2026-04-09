@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 const DARK_BLUE = "#1A3A5C";
-const GOLD      = "#F0A500";
+const GOLD      = "#FFFFFF";
 
 interface NavLink { href: string; label: string; exact?: boolean; }
 

@@ -36,7 +36,7 @@ const STEPS = [
 ];
 
 const DARK_BLUE = "#1A3A5C";
-const GOLD      = "#F0A500";
+const GOLD      = "#FFFFFF";
 const MID_BLUE  = "#1E6BA8";
 
 const DEFAULT_RETENTION = {
@@ -101,7 +101,7 @@ function Step0({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
                 className="text-left p-4 rounded-xl border-2 transition-all"
                 style={{
                   borderColor: selected ? GOLD : "#e5e7eb",
-                  backgroundColor: selected ? "rgba(240,165,0,0.05)" : "white",
+                  backgroundColor: selected ? "rgba(255,255,255,0.05)" : "white",
                 }}
               >
                 <div className="flex items-center gap-3">
@@ -247,7 +247,7 @@ function Step2({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
     <div className="space-y-6">
       <div className="flex items-center gap-3 flex-wrap">
         <h2 className="text-xl font-bold" style={{ color: DARK_BLUE }}>Product Selection & Pricing</h2>
-        <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ backgroundColor: "rgba(240,165,0,0.15)", color: DARK_BLUE }}>
+        <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ backgroundColor: "rgba(255,255,255,0.15)", color: DARK_BLUE }}>
           {PRODUCT_LINES[data.productLine].icon} {PRODUCT_LINES[data.productLine].label}
         </span>
       </div>
@@ -286,7 +286,7 @@ function Step2({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
                     <button
                       onClick={() => toggle(product.id)}
                       className="w-full text-left p-4 flex items-center gap-3"
-                      style={{ backgroundColor: selected ? "rgba(240,165,0,0.04)" : "white" }}
+                      style={{ backgroundColor: selected ? "rgba(255,255,255,0.04)" : "white" }}
                     >
                       <div
                         className="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center border-2 transition-colors"
@@ -321,7 +321,7 @@ function Step2({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
                     {selected && (
                       <div
                         className="px-5 pb-5 pt-1 space-y-4 border-t"
-                        style={{ borderColor: "rgba(240,165,0,0.25)", backgroundColor: "rgba(240,165,0,0.02)" }}
+                        style={{ borderColor: "rgba(255,255,255,0.25)", backgroundColor: "rgba(255,255,255,0.02)" }}
                       >
                         {/* K-Share tier */}
                         {product.id === "kshare" && (
@@ -351,7 +351,7 @@ function Step2({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
                                   className="p-2 rounded-lg border-2 text-left transition-all"
                                   style={{
                                     borderColor: data.servicesPackage === k ? GOLD : "#e5e7eb",
-                                    backgroundColor: data.servicesPackage === k ? "rgba(240,165,0,0.06)" : "white",
+                                    backgroundColor: data.servicesPackage === k ? "rgba(255,255,255,0.06)" : "white",
                                   }}
                                 >
                                   <div className="text-xs font-semibold leading-tight" style={{ color: DARK_BLUE }}>{v.label}</div>
@@ -711,7 +711,7 @@ function Step4({ data }: { data: ProposalData }) {
         {pricing.fiveYearAnnual < pricing.fiveYearPerpetual && (
           <div
             className="flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold"
-            style={{ backgroundColor: "rgba(240,165,0,0.12)", color: DARK_BLUE }}
+            style={{ backgroundColor: "rgba(255,255,255,0.12)", color: DARK_BLUE }}
           >
             <span style={{ color: GOLD }}>💰</span>
             You save <strong style={{ color: GOLD }}>{fmt(pricing.fiveYearPerpetual - pricing.fiveYearAnnual)}</strong> over 5 years with the Annual Subscription model.
@@ -916,7 +916,7 @@ function Step5({
               <InfoRow label="Model"          value={data.pricingModel === "annual" ? "Annual Subscription" : "Perpetual License"} />
             </div>
             <div className="grid md:grid-cols-2 gap-4 mt-4">
-              <div className="rounded-lg p-4 border" style={{ borderColor: GOLD, backgroundColor: "rgba(240,165,0,0.04)" }}>
+              <div className="rounded-lg p-4 border" style={{ borderColor: GOLD, backgroundColor: "rgba(255,255,255,0.04)" }}>
                 <div className="text-xs text-gray-500">Annual Investment</div>
                 <div className="text-2xl font-bold mt-1" style={{ color: DARK_BLUE }}>{fmt(pricing.annualTotal)}</div>
                 <div className="text-xs text-gray-400">per year</div>
@@ -1103,7 +1103,7 @@ function Step5({
               <p className="text-sm text-gray-700 leading-relaxed">{narrative}</p>
             ) : (
               <div className="italic text-gray-400 text-sm py-6 text-center bg-gray-50 rounded-lg">
-                Click &quot;Generate AI Summary&quot; to create a personalised next-steps narrative.
+                No summary generated yet.
               </div>
             )}
           </section>
@@ -1229,7 +1229,7 @@ function ProposalWizard() {
                 </span>
               </button>
               {i < STEPS.length - 1 && (
-                <div className="flex-1 h-0.5 mx-2" style={{ backgroundColor: i < step - 1 ? "rgba(240,165,0,0.5)" : "rgba(255,255,255,0.2)" }} />
+                <div className="flex-1 h-0.5 mx-2" style={{ backgroundColor: i < step - 1 ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.2)" }} />
               )}
             </div>
           ))}
