@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
-import { join } from "path";
 import { ProposalData, PRODUCTS, calculatePricing } from "@/lib/pricing";
-import { getDataPath } from "@/lib/data-path";
-
-const DATA_PATH = getDataPath();
+import { getProposalsCollection } from "@/lib/mongodb";
 
 export interface SavedProposal {
   id: string;
@@ -21,50 +17,46 @@ export interface SavedProposal {
   narrative: string;
 }
 
-// ─── File helpers ─────────────────────────────────────────────────────────────
+// ─── ID generator ─────────────────────────────────────────────────────────────
 
-function readAll(): SavedProposal[] {
-  try {
-    if (!existsSync(DATA_PATH)) return [];
-    return JSON.parse(readFileSync(DATA_PATH, "utf-8")) as SavedProposal[];
-  } catch {
-    return [];
-  }
-}
-
-function writeAll(proposals: SavedProposal[]) {
-  if (!process.env.VERCEL) {
-    // In local dev, ensure the data directory exists
-    const dir = join(process.cwd(), "src", "data");
-    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-  }
-  writeFileSync(DATA_PATH, JSON.stringify(proposals, null, 2), "utf-8");
-}
-
-function generateId(existing: SavedProposal[]): string {
+async function generateId(): Promise<string> {
+  const col = await getProposalsCollection();
   const year = new Date().getFullYear();
   const prefix = `PROP-${year}-`;
-  const nums = existing
-    .map((p) => {
-      const m = p.id.match(new RegExp(`^PROP-${year}-(\\d+)$`));
-      return m ? parseInt(m[1]) : 0;
-    })
-    .filter((n) => n > 0);
-  const next = nums.length === 0 ? 1 : Math.max(...nums) + 1;
+
+  // Find the highest existing ID for this year
+  const latest = await col
+    .find({ id: { $regex: `^PROP-${year}-` } })
+    .sort({ id: -1 })
+    .limit(1)
+    .toArray();
+
+  let next = 1;
+  if (latest.length > 0) {
+    const m = latest[0].id.match(new RegExp(`^PROP-${year}-(\\d+)$`));
+    if (m) next = parseInt(m[1]) + 1;
+  }
   return prefix + String(next).padStart(3, "0");
 }
 
 // ─── GET /api/proposals — list all ───────────────────────────────────────────
 
 export async function GET() {
-  const all = readAll();
-  // Return without formData for the list view (smaller payload)
-  const list = all
-    .sort((a, b) => b.dateCreated.localeCompare(a.dateCreated))
-    .map(({ id, customerName, city, country, dateCreated, products, pricingModel, annualTotal, perpetualTotal, status }) =>
-      ({ id, customerName, city, country, dateCreated, products, pricingModel, annualTotal, perpetualTotal, status })
-    );
-  return NextResponse.json(list);
+  try {
+    const col = await getProposalsCollection();
+    const all = await col
+      .find({})
+      .sort({ dateCreated: -1 })
+      .project<Omit<SavedProposal, "formData">>({
+        _id: 0,
+        formData: 0,   // exclude heavy field for list view
+      })
+      .toArray();
+    return NextResponse.json(all);
+  } catch (err) {
+    console.error("GET proposals error:", err);
+    return NextResponse.json({ error: "Failed to load proposals" }, { status: 500 });
+  }
 }
 
 // ─── POST /api/proposals — create ────────────────────────────────────────────
@@ -74,11 +66,11 @@ export async function POST(req: NextRequest) {
     const body: { formData: ProposalData; narrative?: string } = await req.json();
     const { formData, narrative = "" } = body;
 
-    const all     = readAll();
+    const col     = await getProposalsCollection();
     const pricing = calculatePricing(formData);
 
     const saved: SavedProposal = {
-      id: generateId(all),
+      id: await generateId(),
       customerName: formData.customerName,
       city: formData.city,
       country: formData.country,
@@ -94,8 +86,7 @@ export async function POST(req: NextRequest) {
       narrative,
     };
 
-    all.push(saved);
-    writeAll(all);
+    await col.insertOne(saved);
 
     return NextResponse.json({ id: saved.id, status: "ok" });
   } catch (err) {

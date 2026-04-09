@@ -1,19 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readFileSync, writeFileSync, existsSync } from "fs";
 import type { SavedProposal } from "../route";
-import { getDataPath } from "@/lib/data-path";
-
-function readAll(): SavedProposal[] {
-  const path = getDataPath();
-  try {
-    if (!existsSync(path)) return [];
-    return JSON.parse(readFileSync(path, "utf-8")) as SavedProposal[];
-  } catch { return []; }
-}
-
-function writeAll(proposals: SavedProposal[]) {
-  writeFileSync(getDataPath(), JSON.stringify(proposals, null, 2), "utf-8");
-}
+import { getProposalsCollection } from "@/lib/mongodb";
 
 // ─── GET /api/proposals/[id] ──────────────────────────────────────────────────
 
@@ -21,10 +8,15 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const all  = readAll();
-  const item = all.find((p) => p.id === params.id);
-  if (!item) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  return NextResponse.json(item);
+  try {
+    const col  = await getProposalsCollection();
+    const item = await col.findOne({ id: params.id }, { projection: { _id: 0 } });
+    if (!item) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json(item);
+  } catch (err) {
+    console.error("GET proposal error:", err);
+    return NextResponse.json({ error: "Failed to load proposal" }, { status: 500 });
+  }
 }
 
 // ─── PATCH /api/proposals/[id] — update status or full record ────────────────
@@ -34,13 +26,22 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const body  = await req.json();
-    const all   = readAll();
-    const idx   = all.findIndex((p) => p.id === params.id);
-    if (idx === -1) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    const body = await req.json();
+    const col  = await getProposalsCollection();
 
-    all[idx] = { ...all[idx], ...body, id: params.id }; // id is immutable
-    writeAll(all);
+    // id and _id are immutable — strip them before writing to MongoDB
+    const updates = { ...(body as Partial<SavedProposal> & { _id?: unknown }) };
+    delete (updates as Record<string, unknown>).id;
+    delete (updates as Record<string, unknown>)._id;
+
+    const result = await col.updateOne(
+      { id: params.id },
+      { $set: updates }
+    );
+
+    if (result.matchedCount === 0)
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("PATCH proposal error:", err);
@@ -54,10 +55,16 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const all     = readAll();
-  const filtered = all.filter((p) => p.id !== params.id);
-  if (filtered.length === all.length)
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  writeAll(filtered);
-  return NextResponse.json({ ok: true });
+  try {
+    const col    = await getProposalsCollection();
+    const result = await col.deleteOne({ id: params.id });
+
+    if (result.deletedCount === 0)
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error("DELETE proposal error:", err);
+    return NextResponse.json({ error: "Delete failed" }, { status: 500 });
+  }
 }
