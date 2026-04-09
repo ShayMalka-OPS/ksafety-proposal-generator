@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import type { SavedProposal } from "../route";
 import { getProposalsCollection } from "@/lib/mongodb";
 
+// Never cache this route — always query MongoDB for live data
+export const dynamic = "force-dynamic";
+
 // ─── GET /api/proposals/[id] ──────────────────────────────────────────────────
 
 export async function GET(

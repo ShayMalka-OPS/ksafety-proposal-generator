@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { ProposalData, PRODUCTS, calculatePricing } from "@/lib/pricing";
 import { getProposalsCollection } from "@/lib/mongodb";
 
+// Never cache this route — always query MongoDB for live data
+export const dynamic = "force-dynamic";
+
 export interface SavedProposal {
   id: string;
   customerName: string;
