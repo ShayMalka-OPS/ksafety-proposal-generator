@@ -5,10 +5,26 @@ const DARK_BLUE = "#1A3A5C";
 const GOLD      = "#FFFFFF";
 const MID_BLUE  = "#1E6BA8";
 
-const APP_VERSION = "1.4.0";
+const APP_VERSION = "1.5.0";
 const RELEASE_DATE = "2026-04-09";
 
 const CHANGELOG = [
+  {
+    version: "1.5.0",
+    date: "2026-04-09",
+    changes: [
+      "Removed K-Analytics from product line selector (Step 1) — now shows K-Safety, K-Video, K-Dispatch only",
+      "Fixed: Proposal history now correctly loads from MongoDB Atlas after page reload (projection API fix)",
+      "HA Mode now generates full redundancy architecture: dual AD servers, dedicated app servers per integration (LPR/FR/VA), 3-node Elasticsearch cluster, dual web servers",
+      "VM Infrastructure table in Step 5 is now fully editable — edit specs, add custom rows, delete rows, reset to calculated",
+      "Added discount percentage field in Step 5 with live recalculation of grand total and 5-year cost comparison",
+      "Step 6: Section 5 renamed from 'Next Steps' to 'Generative AI Summary'",
+      "Step 6: 'Generate AI Summary' button moved from top toolbar to align with Section 5",
+      "Step 6: Product descriptions in Section 2 now filtered to show only user-selected products",
+      "Step 6: Added currency selector (USD / NIS ₪ / MXN MX$) with live price conversion",
+      "MongoDB Atlas integration: persistent proposal storage replaces ephemeral JSON file",
+    ],
+  },
   {
     version: "1.4.0",
     date: "2026-04-09",
