@@ -5,10 +5,19 @@ const DARK_BLUE = "#1A3A5C";
 const GOLD      = "#FFFFFF";
 const MID_BLUE  = "#1E6BA8";
 
-const APP_VERSION = "1.3.0";
-const RELEASE_DATE = "2026-04-08";
+const APP_VERSION = "1.4.0";
+const RELEASE_DATE = "2026-04-09";
 
 const CHANGELOG = [
+  {
+    version: "1.4.0",
+    date: "2026-04-09",
+    changes: [
+      "Updated brand accent color from Gold (#F0A500) to White (#FFFFFF) across all pages",
+      "Home page hero heading 'K-Safety Proposal Generator' now renders in full white bold",
+      "Removed 'Generate AI Summary' placeholder hint text from Step 6 of the proposal wizard",
+    ],
+  },
   {
     version: "1.3.0",
     date: "2026-04-08",

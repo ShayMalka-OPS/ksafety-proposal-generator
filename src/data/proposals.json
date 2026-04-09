@@ -1,1 +1,329 @@
-[]
+[
+  {
+    "id": "PROP-2026-001",
+    "customerName": "Test City",
+    "city": "Tel Aviv",
+    "country": "Israel",
+    "dateCreated": "2026-04-08T14:26:55.192Z",
+    "products": [
+      "K-Safety Core Platform"
+    ],
+    "pricingModel": "annual",
+    "annualTotal": 5000,
+    "perpetualTotal": 17500,
+    "status": "Draft",
+    "formData": {
+      "productLine": "ksafety",
+      "deploymentType": "onprem",
+      "customerName": "Test City",
+      "city": "Tel Aviv",
+      "country": "Israel",
+      "contactPerson": "Test Person",
+      "contactEmail": "test@test.com",
+      "projectName": "Test Project",
+      "salesPerson": "Sales Rep",
+      "selectedProducts": [
+        "core"
+      ],
+      "quantities": {},
+      "kshareТier": "entry",
+      "servicesPackage": null,
+      "customPrices": {},
+      "pricingModel": "annual",
+      "haMode": false,
+      "videoBitrateMbps": 4,
+      "retentionDays": {
+        "lpr": 90,
+        "fr": 90,
+        "va": 45,
+        "iot": 90,
+        "cctv": 30
+      }
+    },
+    "narrative": "Test narrative"
+  },
+  {
+    "id": "PROP-2026-002",
+    "customerName": "API Test City",
+    "city": "Beersheba",
+    "country": "Israel",
+    "dateCreated": "2026-04-08T14:34:23.291Z",
+    "products": [
+      "K-Safety Core Platform",
+      "LPR – License Plate Recognition"
+    ],
+    "pricingModel": "annual",
+    "annualTotal": 7500,
+    "perpetualTotal": 26250,
+    "status": "Draft",
+    "formData": {
+      "productLine": "ksafety",
+      "deploymentType": "onprem",
+      "customerName": "API Test City",
+      "city": "Beersheba",
+      "country": "Israel",
+      "contactPerson": "API Tester",
+      "contactEmail": "api@test.com",
+      "projectName": "API Test Proposal",
+      "salesPerson": "QA Bot",
+      "selectedProducts": [
+        "core",
+        "lpr"
+      ],
+      "quantities": {
+        "lpr": 5
+      },
+      "kshareТier": "entry",
+      "servicesPackage": null,
+      "customPrices": {},
+      "pricingModel": "annual",
+      "haMode": false,
+      "videoBitrateMbps": 4,
+      "retentionDays": {
+        "lpr": 90,
+        "fr": 90,
+        "va": 45,
+        "iot": 90,
+        "cctv": 30
+      }
+    },
+    "narrative": ""
+  },
+  {
+    "id": "PROP-2026-003",
+    "customerName": "API Test City",
+    "city": "Beersheba",
+    "country": "Israel",
+    "dateCreated": "2026-04-08T14:34:23.300Z",
+    "products": [
+      "K-Safety Core Platform",
+      "LPR – License Plate Recognition"
+    ],
+    "pricingModel": "annual",
+    "annualTotal": 7500,
+    "perpetualTotal": 26250,
+    "status": "Draft",
+    "formData": {
+      "productLine": "ksafety",
+      "deploymentType": "onprem",
+      "customerName": "API Test City",
+      "city": "Beersheba",
+      "country": "Israel",
+      "contactPerson": "API Tester",
+      "contactEmail": "api@test.com",
+      "projectName": "API Test Proposal",
+      "salesPerson": "QA Bot",
+      "selectedProducts": [
+        "core",
+        "lpr"
+      ],
+      "quantities": {
+        "lpr": 5
+      },
+      "kshareТier": "entry",
+      "servicesPackage": null,
+      "customPrices": {},
+      "pricingModel": "annual",
+      "haMode": false,
+      "videoBitrateMbps": 4,
+      "retentionDays": {
+        "lpr": 90,
+        "fr": 90,
+        "va": 45,
+        "iot": 90,
+        "cctv": 30
+      }
+    },
+    "narrative": "Test narrative"
+  },
+  {
+    "id": "PROP-2026-004",
+    "customerName": "API Test City",
+    "city": "Beersheba",
+    "country": "Israel",
+    "dateCreated": "2026-04-08T14:34:23.585Z",
+    "products": [
+      "K-Safety Core Platform",
+      "LPR – License Plate Recognition"
+    ],
+    "pricingModel": "annual",
+    "annualTotal": 7500,
+    "perpetualTotal": 26250,
+    "status": "Sent",
+    "formData": {
+      "productLine": "ksafety",
+      "deploymentType": "onprem",
+      "customerName": "API Test City",
+      "city": "Beersheba",
+      "country": "Israel",
+      "contactPerson": "API Tester",
+      "contactEmail": "api@test.com",
+      "projectName": "API Test Proposal",
+      "salesPerson": "QA Bot",
+      "selectedProducts": [
+        "core",
+        "lpr"
+      ],
+      "quantities": {
+        "lpr": 5
+      },
+      "kshareТier": "entry",
+      "servicesPackage": null,
+      "customPrices": {},
+      "pricingModel": "annual",
+      "haMode": false,
+      "videoBitrateMbps": 4,
+      "retentionDays": {
+        "lpr": 90,
+        "fr": 90,
+        "va": 45,
+        "iot": 90,
+        "cctv": 30
+      }
+    },
+    "narrative": ""
+  },
+  {
+    "id": "PROP-2026-005",
+    "customerName": "API Test City",
+    "city": "Beersheba",
+    "country": "Israel",
+    "dateCreated": "2026-04-08T14:38:46.145Z",
+    "products": [
+      "K-Safety Core Platform",
+      "LPR – License Plate Recognition"
+    ],
+    "pricingModel": "annual",
+    "annualTotal": 7500,
+    "perpetualTotal": 26250,
+    "status": "Draft",
+    "formData": {
+      "productLine": "ksafety",
+      "deploymentType": "onprem",
+      "customerName": "API Test City",
+      "city": "Beersheba",
+      "country": "Israel",
+      "contactPerson": "API Tester",
+      "contactEmail": "api@test.com",
+      "projectName": "API Test Proposal",
+      "salesPerson": "QA Bot",
+      "selectedProducts": [
+        "core",
+        "lpr"
+      ],
+      "quantities": {
+        "lpr": 5
+      },
+      "kshareТier": "entry",
+      "servicesPackage": null,
+      "customPrices": {},
+      "pricingModel": "annual",
+      "haMode": false,
+      "videoBitrateMbps": 4,
+      "retentionDays": {
+        "lpr": 90,
+        "fr": 90,
+        "va": 45,
+        "iot": 90,
+        "cctv": 30
+      }
+    },
+    "narrative": ""
+  },
+  {
+    "id": "PROP-2026-006",
+    "customerName": "API Test City",
+    "city": "Beersheba",
+    "country": "Israel",
+    "dateCreated": "2026-04-08T14:38:46.154Z",
+    "products": [
+      "K-Safety Core Platform",
+      "LPR – License Plate Recognition"
+    ],
+    "pricingModel": "annual",
+    "annualTotal": 7500,
+    "perpetualTotal": 26250,
+    "status": "Draft",
+    "formData": {
+      "productLine": "ksafety",
+      "deploymentType": "onprem",
+      "customerName": "API Test City",
+      "city": "Beersheba",
+      "country": "Israel",
+      "contactPerson": "API Tester",
+      "contactEmail": "api@test.com",
+      "projectName": "API Test Proposal",
+      "salesPerson": "QA Bot",
+      "selectedProducts": [
+        "core",
+        "lpr"
+      ],
+      "quantities": {
+        "lpr": 5
+      },
+      "kshareТier": "entry",
+      "servicesPackage": null,
+      "customPrices": {},
+      "pricingModel": "annual",
+      "haMode": false,
+      "videoBitrateMbps": 4,
+      "retentionDays": {
+        "lpr": 90,
+        "fr": 90,
+        "va": 45,
+        "iot": 90,
+        "cctv": 30
+      }
+    },
+    "narrative": "Test narrative"
+  },
+  {
+    "id": "PROP-2026-007",
+    "customerName": "MALKA",
+    "city": "petah tikva",
+    "country": "dw",
+    "dateCreated": "2026-04-09T08:29:54.424Z",
+    "products": [
+      "K-Safety Core Platform",
+      "User Licenses",
+      "IoT Sensors",
+      "Professional Services"
+    ],
+    "pricingModel": "annual",
+    "annualTotal": 5105,
+    "perpetualTotal": 17867.5,
+    "status": "Draft",
+    "formData": {
+      "productLine": "ksafety",
+      "deploymentType": "onprem",
+      "customerName": "MALKA",
+      "city": "petah tikva",
+      "country": "dw",
+      "contactPerson": "Shay Malka",
+      "contactEmail": "shaymalka@gmail.com",
+      "projectName": "dw",
+      "salesPerson": "",
+      "selectedProducts": [
+        "core",
+        "users",
+        "iot",
+        "services"
+      ],
+      "quantities": {},
+      "kshareТier": "entry",
+      "servicesPackage": null,
+      "customPrices": {},
+      "pricingModel": "annual",
+      "haMode": false,
+      "videoBitrateMbps": 4,
+      "retentionDays": {
+        "lpr": 90,
+        "fr": 90,
+        "va": 45,
+        "iot": 90,
+        "cctv": 30
+      }
+    },
+    "narrative": ""
+  }
+]
