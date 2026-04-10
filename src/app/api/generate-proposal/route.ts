@@ -75,7 +75,7 @@ Tone: Professional, confident, customer-focused.`;
   } catch (error) {
     console.error("Error generating proposal:", error);
     return NextResponse.json(
-      { error: "Failed to generate proposal narrative" },
+      { error: "Failed to generate proposal narrative. Please try again." },
       { status: 500 }
     );
   }
