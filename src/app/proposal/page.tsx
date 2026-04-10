@@ -101,8 +101,8 @@ function Step0({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
                 onClick={() => onChange({ productLine: key, selectedProducts: [] })}
                 className="text-left p-4 rounded-xl border-2 transition-all"
                 style={{
-                  borderColor: selected ? GOLD : "#e5e7eb",
-                  backgroundColor: selected ? "rgba(255,255,255,0.05)" : "white",
+                  borderColor: selected ? MID_BLUE : "#e5e7eb",
+                  backgroundColor: selected ? "rgba(30,107,168,0.05)" : "white",
                 }}
               >
                 <div className="flex items-center gap-3">
@@ -112,7 +112,7 @@ function Step0({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
                     <div className="text-xs text-gray-500 mt-0.5">{pl.description}</div>
                   </div>
                   {selected && (
-                    <div className="ml-auto w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: GOLD }}>
+                    <div className="ml-auto w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: MID_BLUE }}>
                       <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                       </svg>
@@ -281,19 +281,19 @@ function Step2({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
                   <div
                     key={product.id}
                     className="rounded-xl border-2 overflow-hidden transition-all"
-                    style={{ borderColor: selected ? GOLD : "#e5e7eb" }}
+                    style={{ borderColor: selected ? MID_BLUE : "#e5e7eb" }}
                   >
                     {/* Product toggle row */}
                     <button
                       onClick={() => toggle(product.id)}
                       className="w-full text-left p-4 flex items-center gap-3"
-                      style={{ backgroundColor: selected ? "rgba(255,255,255,0.04)" : "white" }}
+                      style={{ backgroundColor: selected ? "rgba(30,107,168,0.04)" : "white" }}
                     >
                       <div
                         className="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center border-2 transition-colors"
                         style={{
-                          borderColor: selected ? GOLD : "#d1d5db",
-                          backgroundColor: selected ? GOLD : "white",
+                          borderColor: selected ? MID_BLUE : "#d1d5db",
+                          backgroundColor: selected ? MID_BLUE : "white",
                         }}
                       >
                         {selected && (
@@ -501,21 +501,28 @@ function Step3({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
           <h3 className="font-bold text-base" style={{ color: DARK_BLUE }}>Infrastructure Configuration</h3>
 
           {/* HA toggle */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-start gap-4 p-4 rounded-xl border-2 transition-all cursor-pointer"
+            style={{ borderColor: data.haMode ? MID_BLUE : "#e5e7eb", backgroundColor: data.haMode ? "rgba(30,107,168,0.05)" : "white" }}
+            onClick={() => onChange({ haMode: !data.haMode })}>
             <button
-              onClick={() => onChange({ haMode: !data.haMode })}
-              className="w-10 h-6 rounded-full relative transition-colors flex-shrink-0"
-              style={{ backgroundColor: data.haMode ? GOLD : "#d1d5db" }}
+              type="button"
+              className="w-10 h-6 rounded-full relative transition-colors flex-shrink-0 mt-0.5"
+              style={{ backgroundColor: data.haMode ? MID_BLUE : "#d1d5db" }}
+              onClick={(e) => { e.stopPropagation(); onChange({ haMode: !data.haMode }); }}
             >
               <span
                 className="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform"
                 style={{ transform: data.haMode ? "translateX(20px)" : "translateX(2px)" }}
               />
             </button>
-            <div>
+            <div className="flex-1 min-w-0">
               <div className="text-sm font-semibold" style={{ color: DARK_BLUE }}>High Availability (HA) Mode</div>
-              <div className="text-xs text-gray-500">Full HA: dual AD, dedicated integration servers, 3-node Elasticsearch cluster, dual web servers</div>
+              <div className="text-xs text-gray-500 mt-1">Full HA: dual AD, dedicated integration servers, 3-node Elasticsearch cluster, dual web servers</div>
             </div>
+            {data.haMode && (
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0"
+                style={{ backgroundColor: MID_BLUE, color: "white" }}>ON</span>
+            )}
           </div>
 
           {/* Retention periods — CCTV excluded (handled by 3rd party VMS) */}
@@ -732,7 +739,7 @@ function Step4({
       </div>
 
       {/* 5-Year Cost Comparison — discounted values */}
-      <div className="rounded-xl border-2 p-6 space-y-4" style={{ borderColor: GOLD }}>
+      <div className="rounded-xl border-2 p-6 space-y-4" style={{ borderColor: MID_BLUE }}>
         <h3 className="font-black text-base uppercase tracking-wider" style={{ color: DARK_BLUE }}>
           5-Year Total Cost Comparison
           {discount > 0 && <span className="ml-2 text-sm font-normal text-green-600">({discount}% discount applied)</span>}
@@ -754,10 +761,10 @@ function Step4({
         {disc5Ann < disc5Per && (
           <div
             className="flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold"
-            style={{ backgroundColor: "rgba(255,255,255,0.12)", color: DARK_BLUE }}
+            style={{ backgroundColor: "rgba(30,107,168,0.08)", color: DARK_BLUE }}
           >
-            <span style={{ color: GOLD }}>💰</span>
-            You save <strong style={{ color: GOLD }}>{fmt(disc5Per - disc5Ann)}</strong> over 5 years with the Annual Subscription model.
+            <span>💰</span>
+            You save <strong style={{ color: MID_BLUE }}>{fmt(disc5Per - disc5Ann)}</strong> over 5 years with the Annual Subscription model.
           </div>
         )}
       </div>
@@ -1020,17 +1027,20 @@ function Step5({
               <InfoRow label="Deployment"     value={data.deploymentType === "cloud" ? "Cloud (SaaS/IaaS)" : "On-Premises"} />
               <InfoRow label="Model"          value={data.pricingModel === "annual" ? "Annual Subscription" : "Perpetual License"} />
             </div>
-            <div className="grid md:grid-cols-2 gap-4 mt-4">
-              <div className="rounded-lg p-4 border" style={{ borderColor: GOLD, backgroundColor: "rgba(255,255,255,0.04)" }}>
-                <div className="text-xs text-gray-500">Annual Investment</div>
-                <div className="text-2xl font-bold mt-1" style={{ color: DARK_BLUE }}>{fmtCurrency(pricing.annualTotal)}</div>
-                <div className="text-xs text-gray-400">per year</div>
-              </div>
-              <div className="rounded-lg p-4 border border-gray-200">
-                <div className="text-xs text-gray-500">Perpetual Investment</div>
-                <div className="text-2xl font-bold mt-1" style={{ color: MID_BLUE }}>{fmtCurrency(pricing.perpetualTotal)}</div>
-                <div className="text-xs text-gray-400">one-time license</div>
-              </div>
+            <div className="mt-4">
+              {data.pricingModel === "annual" ? (
+                <div className="rounded-lg p-4 border" style={{ borderColor: MID_BLUE }}>
+                  <div className="text-xs text-gray-500">Annual Investment</div>
+                  <div className="text-2xl font-bold mt-1" style={{ color: DARK_BLUE }}>{fmtCurrency(pricing.annualTotal)}</div>
+                  <div className="text-xs text-gray-400">per year</div>
+                </div>
+              ) : (
+                <div className="rounded-lg p-4 border border-gray-200">
+                  <div className="text-xs text-gray-500">Perpetual Investment (one-time)</div>
+                  <div className="text-2xl font-bold mt-1" style={{ color: MID_BLUE }}>{fmtCurrency(pricing.perpetualTotal)}</div>
+                  <div className="text-xs text-gray-400">one-time license + {fmtCurrency(pricing.year2SupportAnnual)}/yr support from Year 2</div>
+                </div>
+              )}
             </div>
           </section>
 
@@ -1145,8 +1155,9 @@ function Step5({
                   <th className="text-left px-3 py-2 text-white">Product</th>
                   <th className="text-center px-3 py-2 text-white">Qty</th>
                   <th className="text-right px-3 py-2 text-white">Unit/yr</th>
-                  <th className="text-right px-3 py-2 text-white">Annual</th>
-                  <th className="text-right px-3 py-2 text-white">Perpetual</th>
+                  <th className="text-right px-3 py-2 text-white">
+                    {data.pricingModel === "annual" ? "Annual Total" : "Perpetual Total"}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -1157,16 +1168,22 @@ function Step5({
                     </td>
                     <td className="px-3 py-2 border-b border-gray-100 text-center">{item.quantity}</td>
                     <td className="px-3 py-2 border-b border-gray-100 text-right">{fmtCurrency(item.annualUnit)}</td>
-                    <td className="px-3 py-2 border-b border-gray-100 text-right">{fmtCurrency(item.annualTotal)}</td>
                     <td className="px-3 py-2 border-b border-gray-100 text-right">
-                      {item.isService ? <span className="text-gray-400 text-xs">one-time</span> : fmtCurrency(item.perpetualTotal)}
+                      {item.isService
+                        ? fmtCurrency(item.annualTotal)
+                        : data.pricingModel === "annual"
+                          ? fmtCurrency(item.annualTotal)
+                          : fmtCurrency(item.perpetualTotal)}
                     </td>
                   </tr>
                 ))}
                 <tr className="font-bold" style={{ backgroundColor: "rgba(26,58,92,0.08)" }}>
                   <td colSpan={3} className="px-3 py-2 text-right" style={{ color: DARK_BLUE }}>GRAND TOTAL</td>
-                  <td className="px-3 py-2 text-right" style={{ color: DARK_BLUE }}>{fmtCurrency(pricing.annualTotal)}/yr</td>
-                  <td className="px-3 py-2 text-right" style={{ color: DARK_BLUE }}>{fmtCurrency(pricing.perpetualTotal)}</td>
+                  <td className="px-3 py-2 text-right" style={{ color: DARK_BLUE }}>
+                    {data.pricingModel === "annual"
+                      ? `${fmtCurrency(pricing.annualTotal)}/yr`
+                      : fmtCurrency(pricing.perpetualTotal)}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -1212,10 +1229,31 @@ function Step5({
               </button>
             </div>
             {narrative ? (
-              <p className="text-sm text-gray-700 leading-relaxed">{narrative}</p>
+              <div className="space-y-4 text-sm text-gray-700 leading-relaxed">
+                {narrative.split('\n').map((line, i) => {
+                  if (line.startsWith('## ')) {
+                    return (
+                      <h4 key={i} className="text-base font-bold mt-5 mb-2 pb-1 border-b"
+                        style={{ color: DARK_BLUE, borderColor: "#e5e7eb" }}>
+                        {line.replace('## ', '')}
+                      </h4>
+                    );
+                  }
+                  if (line.startsWith('- ')) {
+                    return (
+                      <div key={i} className="flex gap-2 ml-2">
+                        <span style={{ color: MID_BLUE }} className="flex-shrink-0 font-bold">▸</span>
+                        <span>{line.replace('- ', '')}</span>
+                      </div>
+                    );
+                  }
+                  if (line.trim() === '') return null;
+                  return <p key={i}>{line}</p>;
+                })}
+              </div>
             ) : (
               <div className="italic text-gray-400 text-sm py-6 text-center bg-gray-50 rounded-lg">
-                No AI summary yet. Click the button above to generate an executive summary.
+                No summary generated yet. Click &ldquo;✨ Generate AI Summary&rdquo; below.
               </div>
             )}
           </section>

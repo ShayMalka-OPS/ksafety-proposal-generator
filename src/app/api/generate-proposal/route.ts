@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     const prompt = `You are writing a professional sales proposal for the K-Safety smart city safety platform by Kabatone.
 
 Customer Details:
-- Customer/City: ${data.customerName}
+- Customer/Organization: ${data.customerName}
 - City: ${data.city}, ${data.country}
 - Contact: ${data.contactPerson} (${data.contactEmail})
 - Project Name: ${data.projectName}
@@ -37,17 +37,30 @@ Selected Products: ${selectedProductNames}
 Pricing Model: ${data.pricingModel === "annual" ? "Annual Subscription" : "Perpetual License"}
 Total Investment: $${pricing.annualTotal.toLocaleString()} per year (annual) or $${pricing.perpetualTotal.toLocaleString()} (perpetual)
 
-Write an executive summary for this proposal. It should:
-1. Open with a strong value proposition specific to ${data.city}'s needs as a smart city
-2. Briefly describe what K-Safety is and why it's the right platform
-3. Highlight 2-3 key benefits of the selected products (${selectedProductNames})
-4. Reference the investment level and ROI potential
-5. Close with a clear call to action
+Format your response with the following structure, using these exact section headers:
 
-Tone: Professional, confident, customer-focused.
-Length: 3-4 paragraphs (about 250-350 words).
-Do NOT use bullet points — write in flowing prose.
-Do NOT include a heading — start directly with the content.`;
+## Executive Summary
+[2-3 sentences on the overall value proposition]
+
+## Business Challenges Addressed
+- [bullet]
+- [bullet]
+
+## Proposed Solution
+[2-3 sentences describing the selected modules and how they work together]
+
+## Key Capabilities
+- [bullet per major selected product]
+
+## Investment Overview
+[1-2 sentences summarising the pricing model and 5-year value]
+
+## Recommended Next Steps
+- [bullet]
+- [bullet]
+
+Keep each section concise. Use the customer's name and city naturally throughout.
+Tone: Professional, confident, customer-focused.`;
 
     const message = await client.messages.create({
       model: "claude-sonnet-4-6",

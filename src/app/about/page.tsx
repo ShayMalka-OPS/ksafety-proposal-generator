@@ -5,10 +5,30 @@ const DARK_BLUE = "#1A3A5C";
 const GOLD      = "#FFFFFF";
 const MID_BLUE  = "#1E6BA8";
 
-const APP_VERSION = "1.5.0";
-const RELEASE_DATE = "2026-04-09";
+const APP_VERSION = "1.6.0";
+const RELEASE_DATE = "2026-04-10";
 
 const CHANGELOG = [
+  {
+    version: "1.6.0",
+    date: "2026-04-10",
+    changes: [
+      "Fixed: Product line cards now show a clear blue selected state — matching the Deployment Model cards",
+      "Fixed: K-Analytics product line fully removed from live site (forced clean Vercel rebuild)",
+      "Fixed: Proposal history now reliably loads from MongoDB after browser close and reopen",
+      "Fixed: HA Mode toggle is now blue when active and no longer overlaps its label text",
+      "Fixed: 'You save' savings amount in 5-year comparison is now visible in blue",
+      "Fixed: Final proposal now shows only the pricing model the user selected (Annual OR Perpetual, not both)",
+      "Fixed: Product checkbox in Step 3 stays visible after selection so users can deselect",
+      "Fixed: AI summary now renders with section headings and bullet points — much easier to read",
+      "Feature: HA Mode generates full redundancy architecture (dual AD, dedicated integration servers, 3-node Elasticsearch, dual web)",
+      "Feature: VM Infrastructure table in Step 5 is fully editable (edit specs, add/delete rows, reset)",
+      "Feature: Discount percentage field in Step 5 with live recalculation and strikethrough",
+      "Feature: Step 6 Section 5 renamed to 'Generative AI Summary'; button repositioned to align with it",
+      "Feature: Product descriptions in Section 2 filtered to selected products only",
+      "Feature: Currency selector in Step 6 — USD, NIS (₪), MXN (MX$) with live conversion",
+    ],
+  },
   {
     version: "1.5.0",
     date: "2026-04-09",
