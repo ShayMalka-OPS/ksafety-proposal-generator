@@ -80,8 +80,6 @@ function buildHtml(data: ProposalData, narrative: string): string {
       <td style="text-align:right;font-weight:600">${round2(s.totalTB)}</td>
     </tr>`).join("");
 
-  const annualIsBetter = pricing.fiveYearAnnual <= pricing.fiveYearPerpetual;
-  const savingsAmount  = Math.abs(pricing.fiveYearPerpetual - pricing.fiveYearAnnual);
 
   return `<!DOCTYPE html>
 <html lang="en">
