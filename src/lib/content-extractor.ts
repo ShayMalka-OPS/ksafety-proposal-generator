@@ -277,22 +277,185 @@ const K_REACT: ProductSection = {
     "Year 2+ support = 20% of perpetual license value.",
 };
 
+// ─── Per-product video sub-sections ──────────────────────────────────────────
+
+const CCTV_SECTION: ProductSection = {
+  title: "K-Video — CCTV Channels",
+  subtitle: "IP Camera Surveillance & Video Management",
+  overview:
+    "K-Video's CCTV module provides centralized management of IP cameras and video streams, " +
+    "delivering live monitoring, intelligent recording, and deep investigation capabilities to " +
+    "security teams. Designed to scale from small installations to city-wide deployments with " +
+    "thousands of cameras, it forms the video backbone for the K-Safety platform.",
+  capabilities: [
+    {
+      name: "Live Video Monitoring",
+      description:
+        "Real-time viewing of multiple camera streams simultaneously, with flexible wall layouts and full-screen monitoring.",
+    },
+    {
+      name: "Video Recording & Storage",
+      description:
+        "Continuous, scheduled, and event-triggered recording with configurable retention policies and storage management.",
+    },
+    {
+      name: "Video Playback & Search",
+      description:
+        "Fast playback with timeline scrubbing, multi-camera synchronised review, and bookmark tools for investigations.",
+    },
+    {
+      name: "Camera Management",
+      description:
+        "Centralized configuration, health monitoring, and PTZ control for all connected IP cameras and encoders.",
+    },
+    {
+      name: "Alarm & Event Handling",
+      description:
+        "Automatic alarm generation on rule triggers, with direct push to the K-Safety command centre for response.",
+    },
+    {
+      name: "GIS Map Integration",
+      description:
+        "Camera positions and live status displayed on a geospatial map for spatial situational awareness.",
+    },
+  ],
+  licensingNotes: "Annual: $100/channel/year. Perpetual: $350/channel. Year 2+ support = 20% of perpetual.",
+};
+
+const LPR_SECTION: ProductSection = {
+  title: "K-Video — License Plate Recognition (LPR)",
+  subtitle: "Automatic Vehicle Identification & Enforcement",
+  overview:
+    "The LPR module provides automatic license plate reading and matching against vehicle " +
+    "databases in real time. Integrated with K-Safety, it enables instant alerts for stolen " +
+    "vehicles, wanted plates, access control enforcement, and post-event investigation. Supports " +
+    "high-speed road cameras and entry/exit lane readers.",
+  capabilities: [
+    {
+      name: "Automatic Plate Reading",
+      description:
+        "Optical character recognition on license plates at traffic speeds, day and night, with high accuracy rates.",
+    },
+    {
+      name: "Watchlist Matching",
+      description:
+        "Real-time comparison against configurable vehicle watchlists with instant alerts to operators.",
+    },
+    {
+      name: "Access Control",
+      description:
+        "Automate gate/barrier control at entry points — allow, deny, or flag vehicles based on plate rules.",
+    },
+    {
+      name: "Traffic & Journey Analysis",
+      description:
+        "Track vehicle journeys across multiple camera points to identify patterns and high-risk routes.",
+    },
+    {
+      name: "Forensic Search",
+      description:
+        "Search historical LPR logs by plate, time range, or location for post-incident investigation.",
+    },
+  ],
+  licensingNotes: "Annual: $500/channel/year. Perpetual: $1,750/channel. Year 2+ support = 20% of perpetual.",
+};
+
+const FACE_SECTION: ProductSection = {
+  title: "K-Video — Face Recognition",
+  subtitle: "Real-Time Biometric Identification",
+  overview:
+    "The Face Recognition module delivers real-time detection and matching of individuals against " +
+    "operator-defined watchlists. Integrated directly into the K-Safety event queue, it enables " +
+    "security teams to identify persons of interest instantly across any connected camera, " +
+    "supporting both live monitoring and forensic investigation workflows.",
+  capabilities: [
+    {
+      name: "Live Face Detection",
+      description:
+        "Continuously analyses video streams to detect and identify faces in real time, even in crowded scenes.",
+    },
+    {
+      name: "Watchlist Matching",
+      description:
+        "Matches detected faces against configurable person-of-interest databases with configurable confidence thresholds.",
+    },
+    {
+      name: "Instant Operator Alerts",
+      description:
+        "Triggers K-Safety events on positive identification, enabling immediate operational response.",
+    },
+    {
+      name: "Forensic Search",
+      description:
+        "Search recorded video by face to locate an individual's movements across all cameras and time ranges.",
+    },
+    {
+      name: "Privacy Controls",
+      description:
+        "Role-based access to facial data, audit logging, and GDPR-compliant data retention policies.",
+    },
+  ],
+  licensingNotes: "Annual: $625/channel/year. Perpetual: $2,188/channel. Year 2+ support = 20% of perpetual.",
+};
+
+const ANALYTICS_SECTION: ProductSection = {
+  title: "K-Video — Video Analytics (AI)",
+  subtitle: "AI-Powered Behavioural & Scene Detection",
+  overview:
+    "The Video Analytics module adds AI-powered intelligence to any connected camera stream. " +
+    "It detects anomalies, behaviours, and events automatically — reducing operator workload and " +
+    "enabling proactive response. Detections are pushed as events into K-Safety for immediate " +
+    "operator review and action.",
+  capabilities: [
+    {
+      name: "Intrusion & Perimeter Detection",
+      description:
+        "Alerts on unauthorised entry into defined zones, fence crossing, and perimeter breach events.",
+    },
+    {
+      name: "Crowd & Density Analysis",
+      description:
+        "Monitors crowd gathering, density thresholds, and abnormal congregation for public safety management.",
+    },
+    {
+      name: "Object Detection",
+      description:
+        "Identifies abandoned objects, removed items, and unattended bags with configurable alert rules.",
+    },
+    {
+      name: "People & Vehicle Counting",
+      description:
+        "Accurate bi-directional counting for pedestrian flows and vehicle throughput analytics.",
+    },
+    {
+      name: "Loitering & Wrong Direction",
+      description:
+        "Detects individuals loitering beyond a defined time threshold or moving against permitted direction.",
+    },
+    {
+      name: "Smoke & Fire Detection",
+      description:
+        "Early visual detection of smoke and fire signatures, supplementing traditional sensor-based systems.",
+    },
+  ],
+  licensingNotes: "Annual: $556/channel/year. Perpetual: $1,946/channel. Year 2+ support = 20% of perpetual.",
+};
+
 // ─── Map: productId → section ─────────────────────────────────────────────────
 
 const PRODUCT_MAP: Record<string, ProductSection> = {
   core:      K_SAFETY,
-  cctv:      K_VIDEO,
-  lpr:       K_VIDEO,
-  face:      K_VIDEO,
-  analytics: K_VIDEO,
+  cctv:      CCTV_SECTION,
+  lpr:       LPR_SECTION,
+  face:      FACE_SECTION,
+  analytics: ANALYTICS_SECTION,
   kshare:    K_SHARE,
   kreact:    K_REACT,
 };
 
 /**
- * Returns the unique product sections for the selected product IDs.
- * Video sub-products (cctv, lpr, face, analytics) all map to K-Video and are
- * deduplicated — K-Video appears only once if any video product is selected.
+ * Returns the product sections for exactly the selected product IDs.
+ * Each product has its own dedicated section — only selected products appear.
  */
 export function getSelectedProductSections(
   selectedProductIds: string[]

@@ -40,15 +40,20 @@ function buildHtml(data: ProposalData, narrative: string): string {
       <td style="color:#555;font-size:11px">${vm.comments}</td>
     </tr>`).join("");
 
-  const lineRows = pricing.lineItems.map((item, i) => `
+  const isAnnual = data.pricingModel === "annual";
+  const lineRows = pricing.lineItems.map((item, i) => {
+    const total = item.isService
+      ? fmt(item.annualTotal)
+      : isAnnual ? fmt(item.annualTotal) : fmt(item.perpetualTotal);
+    return `
     <tr style="background:${i % 2 === 0 ? "#fff" : "#f8fafc"}">
       <td>${item.name}${item.isModified ? ' <span style="color:#b45309;font-weight:700;font-size:11px">*</span>' : ""}</td>
       <td style="text-align:center">${item.quantity}</td>
       <td>${item.unitLabel}</td>
       <td style="text-align:right">${item.annualUnit > 0 ? fmt(item.annualUnit) : "—"}</td>
-      <td style="text-align:right">${fmt(item.annualTotal)}</td>
-      <td style="text-align:right">${item.isService ? '<em style="color:#888">one-time</em>' : fmt(item.perpetualTotal)}</td>
-    </tr>`).join("");
+      <td style="text-align:right">${total}</td>
+    </tr>`;
+  }).join("");
 
   const productSections = sections.map(sec => `
     <div style="margin-bottom:24px">
@@ -134,10 +139,19 @@ function buildHtml(data: ProposalData, narrative: string): string {
   @media print {
     .cover { page-break-after: always; }
     .section { page-break-inside: avoid; }
+    .no-print { display: none !important; }
   }
 </style>
 </head>
 <body>
+<div class="no-print" style="position:fixed;top:12px;right:16px;z-index:999;display:flex;gap:8px">
+  <button onclick="window.print()" style="background:${DARK_BLUE};color:#fff;border:none;padding:10px 20px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">
+    🖨️ Print / Save as PDF
+  </button>
+  <button onclick="window.close()" style="background:#e5e7eb;color:#222;border:none;padding:10px 16px;border-radius:6px;font-size:13px;cursor:pointer">
+    ✕ Close
+  </button>
+</div>
 <div class="page">
 
   <!-- COVER -->
@@ -209,30 +223,26 @@ function buildHtml(data: ProposalData, narrative: string): string {
     <div class="section">
       <div class="section-heading">Section 4 — Pricing Summary</div>
       <table>
-        <thead><tr><th>Product</th><th>Qty</th><th>Unit</th><th style="text-align:right">Unit/yr</th><th style="text-align:right">Annual Total</th><th style="text-align:right">Perpetual Total</th></tr></thead>
+        <thead><tr><th>Product</th><th>Qty</th><th>Unit</th><th style="text-align:right">Unit/yr</th><th style="text-align:right">${isAnnual ? "Annual Total" : "Perpetual Total"}</th></tr></thead>
         <tbody>
           ${lineRows}
           <tr class="total-row">
             <td colspan="3" style="text-align:right">GRAND TOTAL</td>
             <td></td>
-            <td style="text-align:right">${fmt(pricing.annualTotal)}/yr</td>
-            <td style="text-align:right">${fmt(pricing.perpetualTotal)}</td>
+            <td style="text-align:right">${isAnnual ? `${fmt(pricing.annualTotal)}/yr` : fmt(pricing.perpetualTotal)}</td>
           </tr>
         </tbody>
       </table>
 
-      <div class="sub-heading">5-Year Cost Comparison</div>
-      <div class="cards">
-        <div class="card ${annualIsBetter ? "card-winner" : "card-annual"}">
-          <div class="card-label">Annual × 5 years</div>
-          <div class="card-amount" style="color:${MID_BLUE}">${fmt(pricing.fiveYearAnnual)}</div>
-          ${annualIsBetter && savingsAmount > 0 ? `<div class="card-save">Save ${fmt(savingsAmount)} vs. perpetual</div>` : ""}
-        </div>
-        <div class="card ${!annualIsBetter ? "card-winner" : "card-perp"}">
-          <div class="card-label">Perpetual + 4yr support</div>
-          <div class="card-amount" style="color:${DARK_BLUE}">${fmt(pricing.fiveYearPerpetual)}</div>
-          <div style="font-size:11px;color:#888;margin-top:2px">${fmt(pricing.year2SupportAnnual)}/yr from Year 2</div>
-          ${!annualIsBetter && savingsAmount > 0 ? `<div class="card-save">Save ${fmt(savingsAmount)} vs. annual</div>` : ""}
+      <div class="sub-heading">5-Year Cost Projection</div>
+      <div class="cards" style="grid-template-columns:1fr">
+        <div class="card card-winner">
+          <div class="card-label">${isAnnual ? "Annual × 5 years" : "Perpetual + 4yr annual support"}</div>
+          <div class="card-amount" style="color:${isAnnual ? MID_BLUE : DARK_BLUE}">${isAnnual ? fmt(pricing.fiveYearAnnual) : fmt(pricing.fiveYearPerpetual)}</div>
+          ${isAnnual
+            ? `<div style="font-size:11px;color:#555;margin-top:2px">${fmt(pricing.annualTotal)}/yr × 5 years</div>`
+            : `<div style="font-size:11px;color:#555;margin-top:2px">${fmt(pricing.year2SupportAnnual)}/yr from Year 2</div>`
+          }
         </div>
       </div>
     </div>
@@ -265,56 +275,20 @@ function buildHtml(data: ProposalData, narrative: string): string {
 
 // ─── Route handler ────────────────────────────────────────────────────────────
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
     const { data, narrative }: { data: ProposalData; narrative: string } = await req.json();
-
     const html = buildHtml(data, narrative ?? "");
-
-    // Dynamically import puppeteer to avoid issues when not installed
-    let puppeteer;
-    try {
-      puppeteer = await import("puppeteer");
-    } catch {
-      return NextResponse.json(
-        { error: "PDF export requires puppeteer. Run: npm install puppeteer" },
-        { status: 500 }
-      );
-    }
-
-    const browser = await puppeteer.default.launch({
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-      ],
-    });
-
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "networkidle0" });
-
-    const pdf = await page.pdf({
-      format: "A4",
-      printBackground: true,
-      margin: { top: "14mm", bottom: "14mm", left: "12mm", right: "12mm" },
-    });
-
-    await browser.close();
-
-    const filename = `${(data.projectName || "K-Safety-Proposal").replace(/[^a-zA-Z0-9-_]/g, "_")}.pdf`;
-
-    return new NextResponse(pdf as unknown as BodyInit, {
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${filename}"`,
-      },
+    // Return the HTML — the client opens it in a new window and triggers window.print()
+    return new NextResponse(html, {
+      headers: { "Content-Type": "text/html; charset=utf-8" },
     });
   } catch (error) {
     console.error("PDF export error:", error);
     return NextResponse.json(
-      { error: "Failed to generate PDF: " + String(error) },
+      { error: "Failed to generate proposal HTML: " + String(error) },
       { status: 500 }
     );
   }

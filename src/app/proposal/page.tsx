@@ -36,7 +36,7 @@ const STEPS = [
 ];
 
 const DARK_BLUE = "#1A3A5C";
-const GOLD      = "#FFFFFF";
+const GOLD      = "#F0A500";
 const MID_BLUE  = "#1E6BA8";
 
 const DEFAULT_RETENTION = {
@@ -506,13 +506,13 @@ function Step3({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
             onClick={() => onChange({ haMode: !data.haMode })}>
             <button
               type="button"
-              className="w-10 h-6 rounded-full relative transition-colors flex-shrink-0 mt-0.5"
+              className="w-11 h-6 rounded-full relative transition-colors flex-shrink-0 mt-0.5 overflow-hidden"
               style={{ backgroundColor: data.haMode ? MID_BLUE : "#d1d5db" }}
               onClick={(e) => { e.stopPropagation(); onChange({ haMode: !data.haMode }); }}
             >
               <span
                 className="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform"
-                style={{ transform: data.haMode ? "translateX(20px)" : "translateX(2px)" }}
+                style={{ transform: data.haMode ? "translateX(22px)" : "translateX(2px)" }}
               />
             </button>
             <div className="flex-1 min-w-0">
@@ -953,11 +953,14 @@ function Step5({
       alert("PDF export failed: " + (err.error ?? "Unknown error"));
       return;
     }
-    const blob = await res.blob();
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement("a");
-    a.href = url; a.download = `${data.projectName || "K-Safety-Proposal"}.pdf`; a.click();
-    URL.revokeObjectURL(url);
+    const html = await res.text();
+    const win = window.open("", "_blank");
+    if (!win) {
+      alert("Please allow pop-ups for this site to export PDF.");
+      return;
+    }
+    win.document.write(html);
+    win.document.close();
   };
 
   return (
@@ -1107,7 +1110,7 @@ function Step5({
                   ))}
                   <tr style={{ backgroundColor: "rgba(26,58,92,0.07)" }} className="font-bold">
                     <td colSpan={3} className="px-2 py-2 text-right" style={{ color: DARK_BLUE }}>TOTAL</td>
-                    <td className="px-2 py-2 text-center" style={{ color: GOLD }}>{vmRows.reduce((s, v) => s + v.amount, 0)}</td>
+                    <td className="px-2 py-2 text-center font-bold" style={{ color: MID_BLUE }}>{vmRows.reduce((s, v) => s + v.amount, 0)}</td>
                     <td colSpan={6} />
                   </tr>
                 </tbody>
@@ -1138,7 +1141,7 @@ function Step5({
                     {/* CCTV video excluded — handled by 3rd-party VMS */}
                     <tr style={{ backgroundColor: "rgba(26,58,92,0.06)" }} className="font-bold">
                       <td colSpan={5} className="px-3 py-2 text-right" style={{ color: DARK_BLUE }}>Grand Total</td>
-                      <td className="px-3 py-2 text-right text-lg" style={{ color: GOLD }}>{round2(hw.totals.grandTotalTB)} TB</td>
+                      <td className="px-3 py-2 text-right text-lg font-bold" style={{ color: MID_BLUE }}>{round2(hw.totals.grandTotalTB)} TB</td>
                     </tr>
                   </tbody>
                 </table>
@@ -1187,34 +1190,21 @@ function Step5({
                 </tr>
               </tbody>
             </table>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-lg p-4"
-                style={{
-                  backgroundColor: pricing.fiveYearAnnual <= pricing.fiveYearPerpetual ? "#eff6ff" : "#fff7ed",
-                  border: `1px solid ${pricing.fiveYearAnnual <= pricing.fiveYearPerpetual ? "#bfdbfe" : "#fed7aa"}`,
-                }}>
-                <div className="text-xs text-gray-500">Annual × 5 years</div>
-                <div className="text-xl font-bold mt-1" style={{ color: MID_BLUE }}>{fmtCurrency(pricing.fiveYearAnnual)}</div>
-                {pricing.fiveYearAnnual < pricing.fiveYearPerpetual && (
-                  <div className="text-xs font-semibold text-green-600 mt-1">
-                    Save {fmtCurrency(pricing.fiveYearPerpetual - pricing.fiveYearAnnual)} vs. perpetual
-                  </div>
-                )}
-              </div>
-              <div className="rounded-lg p-4"
-                style={{
-                  backgroundColor: pricing.fiveYearPerpetual < pricing.fiveYearAnnual ? "#eff6ff" : "#f9fafb",
-                  border: `1px solid ${pricing.fiveYearPerpetual < pricing.fiveYearAnnual ? "#bfdbfe" : "#e5e7eb"}`,
-                }}>
-                <div className="text-xs text-gray-500">Perpetual + 4yr support</div>
-                <div className="text-xl font-bold mt-1" style={{ color: DARK_BLUE }}>{fmtCurrency(pricing.fiveYearPerpetual)}</div>
-                <div className="text-xs text-gray-400 mt-1">{fmtCurrency(pricing.year2SupportAnnual)}/yr from Year 2</div>
-                {pricing.fiveYearPerpetual < pricing.fiveYearAnnual && (
-                  <div className="text-xs font-semibold text-green-600 mt-1">
-                    Save {fmtCurrency(pricing.fiveYearAnnual - pricing.fiveYearPerpetual)} vs. annual
-                  </div>
-                )}
-              </div>
+            <div className="rounded-lg p-4 max-w-xs"
+              style={{ backgroundColor: "#eff6ff", border: "1px solid #bfdbfe" }}>
+              {data.pricingModel === "annual" ? (
+                <>
+                  <div className="text-xs text-gray-500">5-year total (annual × 5)</div>
+                  <div className="text-xl font-bold mt-1" style={{ color: MID_BLUE }}>{fmtCurrency(pricing.fiveYearAnnual)}</div>
+                  <div className="text-xs text-gray-400 mt-1">{fmtCurrency(pricing.annualTotal)}/yr × 5 years</div>
+                </>
+              ) : (
+                <>
+                  <div className="text-xs text-gray-500">5-year total (perpetual + 4yr support)</div>
+                  <div className="text-xl font-bold mt-1" style={{ color: DARK_BLUE }}>{fmtCurrency(pricing.fiveYearPerpetual)}</div>
+                  <div className="text-xs text-gray-400 mt-1">{fmtCurrency(pricing.year2SupportAnnual)}/yr from Year 2</div>
+                </>
+              )}
             </div>
           </section>
 
