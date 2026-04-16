@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 
 const DARK_BLUE = "#1A3A5C";
 const GOLD = "#F0A500";
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const fromParam = searchParams.get("from") || "/";
 
@@ -36,8 +35,8 @@ function LoginForm() {
         return;
       }
 
-      // Redirect to the original page or home
-      router.push(fromParam);
+      // Hard redirect so the middleware picks up the new session cookie
+      window.location.href = fromParam;
     } catch (err) {
       console.error("Login error:", err);
       setError("An error occurred. Please try again.");
