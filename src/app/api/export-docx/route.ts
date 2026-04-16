@@ -290,7 +290,8 @@ export async function POST(req: NextRequest) {
           alignment: AlignmentType.CENTER,
         }),
       ] : []),
-      ...(PRODUCT_LINE_PILLS[pl] ?? []).map(pill =>
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      ...(PRODUCT_LINE_PILLS[pl] ?? []).map((_pill) =>
         new Paragraph({
           children: [],
           spacing: { before: 0, after: 0 },

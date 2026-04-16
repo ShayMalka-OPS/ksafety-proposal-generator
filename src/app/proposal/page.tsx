@@ -3,7 +3,6 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import {
   ProposalData,
   PRODUCTS,
@@ -32,10 +31,8 @@ import {
   LprVendorEntry,
   FaceVendorEntry,
   IotVendorEntry,
-  hasUnsupportedVendors,
 } from "@/lib/pricing";
 import { calculateHW, buildHWInput, SUBSYSTEM_DEFAULTS, VMSpec, calculateK1VideoHW } from "@/lib/hw-calculator";
-import { getSelectedProductSections } from "@/lib/content-extractor";
 
 const STEPS = [
   { id: 1, label: "Product & Deploy" },
@@ -292,7 +289,8 @@ function Step2({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
     const cp = { ...data.customPrices };
     delete cp[key];
     onChange({ customPrices: cp });
-    setPriceStrings((prev) => { const { [key]: _, ...rest } = prev; return rest; });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    setPriceStrings((prev) => { const { [key]: _omit, ...rest } = prev; return rest; });
   };
 
   const getPrice = (key: string) =>
@@ -311,7 +309,7 @@ function Step2({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
     });
   };
 
-  const updateCctvVendor = (i: number, field: keyof VmsVendorEntry, val: any) => {
+  const updateCctvVendor = (i: number, field: keyof VmsVendorEntry, val: VmsVendorEntry[keyof VmsVendorEntry]) => {
     const updated = [...(data.cctvVendors ?? [])];
     updated[i] = { ...updated[i], [field]: val };
     const totalChannels = updated.reduce((s, v) => s + v.channels, 0) + ((data.k1VideoEnabled ?? false) ? (data.k1VideoChannels ?? 0) : 0);
@@ -348,7 +346,7 @@ function Step2({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
     });
   };
 
-  const updateLprVendor = (i: number, field: keyof LprVendorEntry, val: any) => {
+  const updateLprVendor = (i: number, field: keyof LprVendorEntry, val: LprVendorEntry[keyof LprVendorEntry]) => {
     const updated = [...(data.lprVendors ?? [])];
     updated[i] = { ...updated[i], [field]: val };
     const totalChannels = updated.reduce((s, v) => s + v.channels, 0);
@@ -371,7 +369,7 @@ function Step2({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
     });
   };
 
-  const updateFaceVendor = (i: number, field: keyof FaceVendorEntry, val: any) => {
+  const updateFaceVendor = (i: number, field: keyof FaceVendorEntry, val: FaceVendorEntry[keyof FaceVendorEntry]) => {
     const updated = [...(data.faceVendors ?? [])];
     updated[i] = { ...updated[i], [field]: val };
     const totalChannels = updated.reduce((s, v) => s + v.channels, 0);
@@ -394,7 +392,7 @@ function Step2({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
     });
   };
 
-  const updateIotVendor = (i: number, field: keyof IotVendorEntry, val: any) => {
+  const updateIotVendor = (i: number, field: keyof IotVendorEntry, val: IotVendorEntry[keyof IotVendorEntry]) => {
     const updated = [...(data.iotVendors ?? [])];
     updated[i] = { ...updated[i], [field]: val };
     const totalUnits = updated.reduce((s, v) => s + v.units, 0);
@@ -912,7 +910,8 @@ function Step2({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
                                   onChange={(e) => setPriceStrings((prev) => ({ ...prev, [priceKey]: e.target.value }))}
                                   onBlur={(e) => {
                                     commitPrice(priceKey, e.target.value);
-                                    setPriceStrings((prev) => { const { [priceKey]: _, ...rest } = prev; return rest; });
+                                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                    setPriceStrings((prev) => { const { [priceKey]: _omit, ...rest } = prev; return rest; });
                                   }}
                                   title={`Default: ${fmt(defaultPriceVal)}/${product.unitLabel}/yr`}
                                   className="w-32 pl-7 pr-3 py-1.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E6BA8] transition-colors"
@@ -1416,29 +1415,6 @@ const WHY_RIGHT: Record<string, string[]> = {
 };
 
 
-const CAP_ICONS: Record<string, string> = {
-  "Event Management":              "🚨",
-  "Task Management":               "✅",
-  "BPM / Rules Engine":            "⚙️",
-  "Shift Management":              "📅",
-  "People & Vehicle Lists":        "📋",
-  "Organizations & Users":         "👥",
-  "Reports & BI":                  "📊",
-  "GIS / Interactive Map":         "🗺️",
-  "Sensors Dashboard":             "📡",
-  "CCTV Integration":              "🎥",
-  "LPR – License Plate Recognition":"🚗",
-  "Face Recognition":              "👤",
-  "Video Analytics (AI)":          "🤖",
-  "K-Share Citizen App":           "📱",
-  "K-React Field App":             "🚒",
-  "Unified Video Management":      "🎬",
-  "Live & Archive View":           "📹",
-  "Dispatch Console":              "🖥️",
-  "Mobile Dispatch":               "📲",
-  "Resource Tracking":             "📍",
-  "CAD Integration":               "💻",
-};
 
 // Fixed core capabilities shown in every proposal (Step 6)
 const CORE_CAPABILITIES = [
@@ -1477,7 +1453,6 @@ function Step5({
   const [saving, setSaving]     = useState(false);
   const [currency, setCurrency] = useState("USD");
   const pricing  = calculatePricing(data);
-  const sections = getSelectedProductSections(data.selectedProducts);
   const dateStr  = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 
   const fmtCurrency = (usd: number) => {
