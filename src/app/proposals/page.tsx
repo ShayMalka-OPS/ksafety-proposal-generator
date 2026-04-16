@@ -22,6 +22,21 @@ interface ProposalRow {
   status: ProposalStatus;
 }
 
+/** Compute 5-year total based on the proposal's pricing model */
+function fiveYearTotal(p: ProposalRow): number {
+  if (p.pricingModel === "annual") return p.annualTotal * 5;
+  // Perpetual: one-time + 20% support × 4 years
+  const licenseOnly = p.perpetualTotal; // approximation (includes services, but close enough)
+  return p.perpetualTotal + licenseOnly * 0.2 * 4;
+}
+
+/** Investment label based on model */
+function investmentLabel(p: ProposalRow): { amount: number; suffix: string } {
+  return p.pricingModel === "annual"
+    ? { amount: p.annualTotal,    suffix: "/yr" }
+    : { amount: p.perpetualTotal, suffix: " one-time" };
+}
+
 const STATUS_COLORS: Record<ProposalStatus, { bg: string; text: string; border: string }> = {
   Draft: { bg: "#f3f4f6", text: "#374151", border: "#d1d5db" },
   Sent:  { bg: "#eff6ff", text: "#1e40af", border: "#bfdbfe" },
@@ -43,7 +58,7 @@ function DashboardStats({ proposals }: { proposals: ProposalRow[] }) {
   const sent     = proposals.filter((p) => p.status === "Sent").length;
   const pipeline = proposals
     .filter((p) => p.status !== "Lost")
-    .reduce((s, p) => s + p.annualTotal, 0);
+    .reduce((s, p) => s + investmentLabel(p).amount, 0);
 
   const winRate = total > 0 ? Math.round((won / total) * 100) : 0;
 
@@ -275,7 +290,7 @@ export default function ProposalsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr style={{ backgroundColor: DARK_BLUE }}>
-                      {["ID", "Customer", "City", "Date", "Products", "Model", "Annual Total", "Status", "Actions"].map((h) => (
+                      {["ID", "Customer", "City", "Date", "Products", "Model", "Investment", "5-Year Total", "Status", "Actions"].map((h) => (
                         <th key={h} className="text-left px-4 py-3 text-white font-semibold whitespace-nowrap">{h}</th>
                       ))}
                     </tr>
@@ -316,8 +331,12 @@ export default function ProposalsPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3 font-bold whitespace-nowrap" style={{ color: DARK_BLUE }}>
-                          {fmt(p.annualTotal)}
-                          <div className="text-xs font-normal text-gray-400">/year</div>
+                          {fmt(investmentLabel(p).amount)}
+                          <div className="text-xs font-normal text-gray-400">{investmentLabel(p).suffix}</div>
+                        </td>
+                        <td className="px-4 py-3 font-semibold whitespace-nowrap" style={{ color: MID_BLUE }}>
+                          {fmt(fiveYearTotal(p))}
+                          <div className="text-xs font-normal text-gray-400">5-yr</div>
                         </td>
                         <td className="px-4 py-3">
                           <StatusBadge id={p.id} status={p.status} onUpdate={updateStatus} />

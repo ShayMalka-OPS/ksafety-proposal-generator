@@ -155,12 +155,84 @@ export const PRODUCT_LINES: Record<ProductLine, { label: string; description: st
   kdispatch: { label: "K-Dispatch", description: "First-responder dispatch, K-React mobile & CAD integration", icon: "🚨" },
 };
 
+// ─── v1.7.0 Vendor types ──────────────────────────────────────────────────────
+
+/** Supported CCTV/VMS vendors. "other" means user entered a custom name. */
+export const VMS_VENDORS = [
+  "Milestone",
+  "HikVision",
+  "Genetec",
+  "Dahua",
+  "ISS (SecureOS)",
+  "Digivod",
+] as const;
+
+export type VmsVendorId = typeof VMS_VENDORS[number] | "other";
+
+export interface VmsVendorEntry {
+  vendorName: string;  // one of VMS_VENDORS or custom text if "other"
+  channels: number;
+  isOther: boolean;
+}
+
+/** Supported LPR vendors */
+export const LPR_VENDORS = [
+  "Nerosoft",
+  "Milestone",
+] as const;
+
+export type LprVendorId = typeof LPR_VENDORS[number] | "other";
+
+export interface LprVendorEntry {
+  vendorName: string;
+  channels: number;
+  isOther: boolean;
+}
+
+/** Supported Face Recognition vendors */
+export const FACE_VENDORS = [
+  "Corsight",
+  "SAFR",
+] as const;
+
+export type FaceVendorId = typeof FACE_VENDORS[number] | "other";
+
+export interface FaceVendorEntry {
+  vendorName: string;
+  channels: number;
+  isOther: boolean;
+}
+
+/** IoT sensor types */
+export const IOT_VENDORS = [
+  "AVL – Motorola",
+  "AVL – Hytera",
+  "Panic Buttons",
+  "Access Control",
+  "Fire Alarm (Telefire)",
+  "Traffic Lights (YSB)",
+  "Smart Light (Tondo)",
+  "Alarm System (PIMA)",
+  "Alarm System (RISCO)",
+] as const;
+
+export type IotVendorId = typeof IOT_VENDORS[number] | "other";
+
+export interface IotVendorEntry {
+  vendorName: string;
+  units: number;
+  isOther: boolean;
+}
+
+// ─── ProposalData ─────────────────────────────────────────────────────────────
+
 export interface ProposalData {
-  // Step 0 — Product line & deployment type
+  // Step 1 — Product line, deployment type & pricing model (moved here in v1.7.0)
   productLine: ProductLine;
   deploymentType: DeploymentType;
+  pricingModel: "annual" | "perpetual";   // moved from Step 3 to Step 1 in v1.7.0
 
-  // Step 1 — Customer Info
+  // Step 2 — Customer Info
   customerName: string;
   city: string;
   country: string;
@@ -169,7 +241,7 @@ export interface ProposalData {
   projectName: string;
   salesPerson: string;
 
-  // Step 2 — Products, quantities & custom prices
+  // Step 3 — Products, quantities & custom prices
   selectedProducts: string[];
   quantities: Record<string, number>;
   kshareТier: KShareTier;
@@ -177,8 +249,17 @@ export interface ProposalData {
   /** Per-product price overrides. Key = getPriceKey(productId, tier, package). */
   customPrices: Record<string, number>;
 
-  // Step 3 — Model & HW configuration
-  pricingModel: "annual" | "perpetual";
+  // v1.7.0 — Vendor selections per module (optional for backward compat with pre-1.7 saved proposals)
+  cctvVendors?: VmsVendorEntry[];         // CCTV 3rd-party VMS vendors
+  k1VideoEnabled?: boolean;              // K1-Video (VXG OEM embedded VMS)
+  k1VideoChannels?: number;
+  k1VideoRetentionDays?: number;
+  k1VideoBitrateMbps?: number;
+  lprVendors?: LprVendorEntry[];         // LPR integration vendors
+  faceVendors?: FaceVendorEntry[];       // Face Recognition vendors
+  iotVendors?: IotVendorEntry[];         // IoT sensor types
+
+  // Step 4 — HW configuration
   haMode: boolean;
   videoBitrateMbps: number;
   retentionDays: {
@@ -189,10 +270,10 @@ export interface ProposalData {
     cctv: number;
   };
 
-  // Step 4 — Discount
+  // Step 5 — Discount
   discount?: number;   // percentage 0–100, applied to licence total
 
-  // Step 5 — Generated content
+  // Step 6 — Generated content
   aiNarrative?: string;
 }
 
@@ -333,3 +414,33 @@ export const PRODUCT_LINE_PRODUCTS: Record<ProductLine, string[]> = {
   kvideo:    ["cctv","lpr","face","analytics","users","services"],
   kdispatch: ["core","kreact","kshare","users","services"],
 };
+
+/** Helper: total CCTV channels from all vendor entries */
+export function totalCctvChannels(data: ProposalData): number {
+  return (data.cctvVendors ?? []).reduce((s, v) => s + v.channels, 0);
+}
+
+/** Helper: total LPR channels from all vendor entries */
+export function totalLprChannels(data: ProposalData): number {
+  return (data.lprVendors ?? []).reduce((s, v) => s + v.channels, 0);
+}
+
+/** Helper: total Face Recognition channels from all vendor entries */
+export function totalFaceChannels(data: ProposalData): number {
+  return (data.faceVendors ?? []).reduce((s, v) => s + v.channels, 0);
+}
+
+/** Helper: total IoT units from all vendor entries */
+export function totalIotUnits(data: ProposalData): number {
+  return (data.iotVendors ?? []).reduce((s, v) => s + v.units, 0);
+}
+
+/** Returns true if any "other" (unsupported) vendor is selected for any module */
+export function hasUnsupportedVendors(data: ProposalData): boolean {
+  return (
+    (data.cctvVendors ?? []).some((v) => v.isOther) ||
+    (data.lprVendors  ?? []).some((v) => v.isOther) ||
+    (data.faceVendors ?? []).some((v) => v.isOther) ||
+    (data.iotVendors  ?? []).some((v) => v.isOther)
+  );
+}

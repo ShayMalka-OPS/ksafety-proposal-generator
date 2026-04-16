@@ -505,6 +505,206 @@ export function calculateHW(input: HWCalcInput): HWCalcResult {
   };
 }
 
+// ─── VXG K1-Video HW Calculator (v1.7.0) ─────────────────────────────────────
+
+/**
+ * VXG On-Prem service table (cameras per instance, vCPU, RAM GB, HDD GB)
+ * Source: VXG-HW-Sizing-Guide.md Part A
+ */
+const VXG_ONPREM_SERVICES = [
+  { name: "Hosting",          camPerInstance: 160,   vCPU: 2,  ramGB: 8,  hddGB: 10  },
+  { name: "Web",              camPerInstance: 5000,  vCPU: 1,  ramGB: 4,  hddGB: 10  },
+  { name: "Control",          camPerInstance: 5000,  vCPU: 1,  ramGB: 4,  hddGB: 10  },
+  { name: "Media",            camPerInstance: 200,   vCPU: 2,  ramGB: 8,  hddGB: 24  },
+  { name: "CM",               camPerInstance: 400,   vCPU: 2,  ramGB: 4,  hddGB: 10  },
+  { name: "WebRTC",           camPerInstance: 5000,  vCPU: 1,  ramGB: 4,  hddGB: 10  },
+  { name: "SQL DB Cluster",   camPerInstance: 2500,  vCPU: 2,  ramGB: 8,  hddGB: 250 },
+  { name: "Turn Server",      camPerInstance: 5000,  vCPU: 2,  ramGB: 8,  hddGB: 10  },
+  { name: "Backend/Postgres", camPerInstance: 10000, vCPU: 1,  ramGB: 4,  hddGB: 10  },
+] as const;
+
+/**
+ * VXG Cloud (AWS/EKS) service table
+ * Source: VXG-HW-Sizing-Guide.md Part B
+ */
+const VXG_CLOUD_SERVICES = [
+  { name: "Hosting",          camPerInstance: 160,   vCPU: 2,  ramGB: 12, hddGB: 10  },
+  { name: "Web",              camPerInstance: 2000,  vCPU: 2,  ramGB: 6,  hddGB: 10  },
+  { name: "Control",          camPerInstance: 4000,  vCPU: 2,  ramGB: 8,  hddGB: 10  },
+  { name: "Media",            camPerInstance: 300,   vCPU: 2,  ramGB: 8,  hddGB: 24  },
+  { name: "CM",               camPerInstance: 500,   vCPU: 2,  ramGB: 4,  hddGB: 10  },
+  { name: "WebRTC",           camPerInstance: 2000,  vCPU: 2,  ramGB: 8,  hddGB: 10  },
+  { name: "SQL DB Cluster",   camPerInstance: 2500,  vCPU: 2,  ramGB: 8,  hddGB: 250 },
+  { name: "ELK Cluster",      camPerInstance: 2500,  vCPU: 1,  ramGB: 8,  hddGB: 500 },
+  { name: "Turn Server",      camPerInstance: 5000,  vCPU: 2,  ramGB: 8,  hddGB: 10  },
+  { name: "Backend/Postgres", camPerInstance: 10000, vCPU: 2,  ramGB: 8,  hddGB: 10  },
+] as const;
+
+/** RAID overhead factor by camera count (on-prem) */
+function getRaidFactor(cameras: number): number {
+  if (cameras <= 400)  return 0.50;
+  if (cameras <= 600)  return 0.33;
+  if (cameras <= 800)  return 0.25;
+  if (cameras <= 1000) return 0.20;
+  if (cameras <= 1200) return 0.17;
+  return 0.14;
+}
+
+export interface K1VideoServiceRow {
+  service: string;
+  instances: number;
+  vCPU: number;
+  ramGB: number;
+  hddGB: number;
+}
+
+export interface K1VideoHWInput {
+  cameras: number;
+  bitrateMbps: number;       // average per camera (1 Mbps SD, 2 Mbps HD, 4 Mbps Full HD)
+  retentionDays: number;
+  deploymentType: "onprem" | "cloud";
+  haMode?: boolean;
+}
+
+export interface K1VideoHWResult {
+  /** Per-service breakdown */
+  serviceRows: K1VideoServiceRow[];
+  /** Raw totals before overhead */
+  rawVCPU: number;
+  rawRAM: number;
+  rawHDD: number;
+  /** Totals after overhead */
+  finalVCPU: number;
+  finalRAM: number;
+  finalHDD: number;
+  overheadPct: number;
+  /** Physical nodes / cloud instances recommendation */
+  nodes: {
+    count: number;
+    spec: string;
+    totalVCPU: number;
+    totalRAM: number;
+    totalHDD: number;
+  };
+  /** Storage */
+  videoTB: number;
+  archiveTB: number;
+  raidOrRedundancyTB: number;
+  totalStorageTB: number;
+  storageNote: string;
+  /** Summary */
+  summary: string;
+}
+
+/**
+ * Calculate VXG K1-Video hardware requirements.
+ * Follows VXG-HW-Sizing-Guide.md Part A (on-prem) and Part B (cloud).
+ */
+export function calculateK1VideoHW(input: K1VideoHWInput): K1VideoHWResult {
+  const { cameras, bitrateMbps, retentionDays, deploymentType, haMode } = input;
+  const isCloud = deploymentType === "cloud";
+  const services = isCloud ? VXG_CLOUD_SERVICES : VXG_ONPREM_SERVICES;
+  const overheadPct = isCloud ? 0.30 : 0.07;
+
+  // Step 1: instances & raw resources per service
+  const serviceRows: K1VideoServiceRow[] = services.map((s) => {
+    const instances = Math.ceil(cameras / s.camPerInstance);
+    return {
+      service: s.name,
+      instances,
+      vCPU: instances * s.vCPU,
+      ramGB: instances * s.ramGB,
+      hddGB: instances * s.hddGB,
+    };
+  });
+
+  // Step 2: raw totals
+  const rawVCPU = serviceRows.reduce((s, r) => s + r.vCPU, 0);
+  const rawRAM  = serviceRows.reduce((s, r) => s + r.ramGB, 0);
+  const rawHDD  = serviceRows.reduce((s, r) => s + r.hddGB, 0);
+
+  // Step 3: apply overhead
+  const finalVCPU = Math.ceil(rawVCPU * (1 + overheadPct));
+  const finalRAM  = Math.ceil(rawRAM  * (1 + overheadPct));
+  const finalHDD  = Math.ceil(rawHDD  * (1 + overheadPct));
+
+  // Step 4: nodes / instances
+  let nodeCount: number;
+  let nodeSpec: string;
+  let nodeVCPU: number;
+  let nodeRAM: number;
+  let nodeHDD: number;
+
+  if (isCloud) {
+    // Map to AWS EC2 instance types
+    if (cameras <= 300) {
+      nodeSpec = "m6i.2xlarge (8 vCPU / 32 GB)";
+      nodeVCPU = 8; nodeRAM = 32; nodeCount = Math.max(2, Math.ceil(finalVCPU / 8));
+    } else if (cameras <= 1000) {
+      nodeSpec = "m6i.4xlarge (16 vCPU / 64 GB)";
+      nodeVCPU = 16; nodeRAM = 64; nodeCount = Math.max(2, Math.ceil(finalVCPU / 16));
+    } else if (cameras <= 3000) {
+      nodeSpec = "m6i.8xlarge (32 vCPU / 128 GB)";
+      nodeVCPU = 32; nodeRAM = 128; nodeCount = Math.max(2, Math.ceil(finalVCPU / 32));
+    } else {
+      nodeSpec = "m6i.16xlarge (64 vCPU / 256 GB)";
+      nodeVCPU = 64; nodeRAM = 256; nodeCount = Math.max(2, Math.ceil(finalVCPU / 64));
+    }
+    if (haMode && nodeCount < 2) nodeCount = 2; // Multi-AZ minimum
+    nodeHDD = Math.ceil(finalHDD / nodeCount);
+  } else {
+    // On-prem: VXG reference node = 14 cores / 48 GB RAM / 275 GB HDD (~334 cam/node)
+    // Use 16-core / 64 GB / 400 GB actual recommended spec
+    nodeVCPU = 16; nodeRAM = 64; nodeHDD = 400;
+    nodeCount = Math.max(
+      Math.ceil(finalVCPU / nodeVCPU),
+      Math.ceil(finalRAM  / nodeRAM),
+      Math.ceil(finalHDD  / nodeHDD),
+    );
+    if (haMode) nodeCount = Math.max(nodeCount, nodeCount + 1); // extra HA node
+    nodeSpec = "Intel Xeon Gold – 16 cores / 64 GB RAM / 400 GB SSD";
+  }
+
+  // Step 5: storage
+  const bitrateMBps  = bitrateMbps / 8;                                 // Mbps → MB/s
+  const videoTB      = (bitrateMBps * cameras * 86400 * retentionDays) / 1_000_000;
+  const archiveTB    = videoTB * 0.20;
+
+  let raidOrRedundancyTB: number;
+  let storageNote: string;
+
+  if (isCloud) {
+    raidOrRedundancyTB = 0;  // S3 has built-in redundancy
+    storageNote = `AWS S3 – no RAID needed. Total S3: ~${(videoTB + archiveTB).toFixed(1)} TB`;
+  } else {
+    const raidFactor = getRaidFactor(cameras);
+    raidOrRedundancyTB = (videoTB + archiveTB) * raidFactor;
+    storageNote = `On-Prem NAS/SAN with RAID (${Math.round(raidFactor * 100)}% overhead for ${cameras} cameras)`;
+  }
+
+  const totalStorageTB = videoTB + archiveTB + raidOrRedundancyTB;
+
+  const summary = isCloud
+    ? `${nodeCount}× ${nodeSpec.split(" (")[0]} EKS worker nodes | S3: ~${totalStorageTB.toFixed(1)} TB`
+    : `${nodeCount} physical server${nodeCount > 1 ? "s" : ""} (${nodeSpec.split("–")[1]?.trim() ?? nodeSpec}) | NAS: ~${totalStorageTB.toFixed(1)} TB`;
+
+  return {
+    serviceRows,
+    rawVCPU, rawRAM, rawHDD,
+    finalVCPU, finalRAM, finalHDD,
+    overheadPct,
+    nodes: {
+      count: nodeCount,
+      spec: nodeSpec,
+      totalVCPU: nodeVCPU * nodeCount,
+      totalRAM:  nodeRAM  * nodeCount,
+      totalHDD:  nodeHDD  * nodeCount,
+    },
+    videoTB, archiveTB, raidOrRedundancyTB, totalStorageTB, storageNote,
+    summary,
+  };
+}
+
 // ─── Helper: build HWCalcInput from ProposalData ──────────────────────────────
 
 export function buildHWInput(data: {

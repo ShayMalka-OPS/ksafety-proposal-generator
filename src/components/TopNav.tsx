@@ -2,12 +2,19 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const DARK_BLUE = "#1A3A5C";
 const GOLD      = "#FFFFFF";
 
 interface NavLink { href: string; label: string; exact?: boolean; }
+interface CurrentUser {
+  id: string;
+  email: string;
+  name: string;
+  role: "admin" | "user";
+}
 
 const LINKS: NavLink[] = [
   { href: "/proposals", label: "📋 History" },
@@ -17,6 +24,34 @@ const LINKS: NavLink[] = [
 
 export default function TopNav() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = useState<CurrentUser | null>(null);
+  const [loadingLogout, setLoadingLogout] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => {
+        if (res.ok) return res.json();
+        return null;
+      })
+      .then((data) => {
+        if (data) setUser(data);
+      })
+      .catch(() => {
+        // User not authenticated or error
+      });
+  }, []);
+
+  const handleLogout = async () => {
+    setLoadingLogout(true);
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      setLoadingLogout(false);
+    }
+  };
 
   const isActive = (href: string, exact?: boolean) =>
     exact ? pathname === href : pathname.startsWith(href);
@@ -68,6 +103,35 @@ export default function TopNav() {
           );
         })}
       </nav>
+
+      {/* User menu — right side */}
+      {user && (
+        <div className="flex items-center gap-3 ml-auto">
+          {user.role === "admin" && (
+            <Link
+              href="/admin"
+              className="px-3 py-1.5 text-xs font-semibold rounded transition-all hover:opacity-80"
+              style={{ backgroundColor: "rgba(240,165,0,0.2)", color: "#F0A500", border: "1px solid rgba(240,165,0,0.4)" }}
+            >
+              ⚙️ Admin
+            </Link>
+          )}
+          <div className="text-right hidden sm:block">
+            <div className="text-xs text-blue-100">{user.name}</div>
+            <div className="text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>
+              {user.role === "admin" ? "Admin" : "User"}
+            </div>
+          </div>
+          <button
+            onClick={handleLogout}
+            disabled={loadingLogout}
+            className="px-4 py-2 text-sm font-medium rounded transition-all hover:opacity-80 disabled:opacity-50"
+            style={{ backgroundColor: "rgba(255,255,255,0.15)", color: GOLD }}
+          >
+            {loadingLogout ? "..." : "Sign Out"}
+          </button>
+        </div>
+      )}
     </header>
   );
 }

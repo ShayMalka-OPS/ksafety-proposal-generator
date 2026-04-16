@@ -1,0 +1,131 @@
+[
+  {
+    "id": "PROP-2026-001",
+    "customerName": "City A",
+    "city": "Haifa",
+    "country": "Israel",
+    "dateCreated": "2026-04-16T12:27:45.571Z",
+    "products": [
+      "core"
+    ],
+    "pricingModel": "annual",
+    "annualTotal": 5000,
+    "perpetualTotal": 17500,
+    "status": "Draft",
+    "formData": {
+      "productLine": "ksafety",
+      "deploymentType": "onprem",
+      "customerName": "City A",
+      "city": "Haifa",
+      "country": "Israel",
+      "contactPerson": "QA Tester",
+      "contactEmail": "qa@test.com",
+      "projectName": "QA Test Proposal",
+      "salesPerson": "Rep",
+      "selectedProducts": [
+        "core"
+      ],
+      "quantities": {},
+      "kshareТier": "entry",
+      "servicesPackage": null,
+      "customPrices": {},
+      "pricingModel": "annual",
+      "haMode": false,
+      "videoBitrateMbps": 4,
+      "retentionDays": {
+        "lpr": 90,
+        "fr": 90,
+        "va": 45,
+        "iot": 90,
+        "cctv": 30
+      }
+    },
+    "narrative": ""
+  },
+  {
+    "id": "PROP-2026-002",
+    "customerName": "City B",
+    "city": "Haifa",
+    "country": "Israel",
+    "dateCreated": "2026-04-16T12:27:45.580Z",
+    "products": [
+      "core"
+    ],
+    "pricingModel": "annual",
+    "annualTotal": 5000,
+    "perpetualTotal": 17500,
+    "status": "Draft",
+    "formData": {
+      "productLine": "ksafety",
+      "deploymentType": "onprem",
+      "customerName": "City B",
+      "city": "Haifa",
+      "country": "Israel",
+      "contactPerson": "QA Tester",
+      "contactEmail": "qa@test.com",
+      "projectName": "QA Test Proposal",
+      "salesPerson": "Rep",
+      "selectedProducts": [
+        "core"
+      ],
+      "quantities": {},
+      "kshareТier": "entry",
+      "servicesPackage": null,
+      "customPrices": {},
+      "pricingModel": "annual",
+      "haMode": false,
+      "videoBitrateMbps": 4,
+      "retentionDays": {
+        "lpr": 90,
+        "fr": 90,
+        "va": 45,
+        "iot": 90,
+        "cctv": 30
+      }
+    },
+    "narrative": ""
+  },
+  {
+    "id": "PROP-2026-003",
+    "customerName": "City C",
+    "city": "Haifa",
+    "country": "Israel",
+    "dateCreated": "2026-04-16T12:27:45.590Z",
+    "products": [
+      "core"
+    ],
+    "pricingModel": "annual",
+    "annualTotal": 5000,
+    "perpetualTotal": 17500,
+    "status": "Draft",
+    "formData": {
+      "productLine": "ksafety",
+      "deploymentType": "onprem",
+      "customerName": "City C",
+      "city": "Haifa",
+      "country": "Israel",
+      "contactPerson": "QA Tester",
+      "contactEmail": "qa@test.com",
+      "projectName": "QA Test Proposal",
+      "salesPerson": "Rep",
+      "selectedProducts": [
+        "core"
+      ],
+      "quantities": {},
+      "kshareТier": "entry",
+      "servicesPackage": null,
+      "customPrices": {},
+      "pricingModel": "annual",
+      "haMode": false,
+      "videoBitrateMbps": 4,
+      "retentionDays": {
+        "lpr": 90,
+        "fr": 90,
+        "va": 45,
+        "iot": 90,
+        "cctv": 30
+      }
+    },
+    "narrative": ""
+  }
+]

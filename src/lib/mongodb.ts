@@ -1,4 +1,4 @@
-import { MongoClient, Collection } from "mongodb";
+import { MongoClient, Collection, ObjectId } from "mongodb";
 import type { SavedProposal } from "@/app/api/proposals/route";
 
 const DB_NAME   = "ksafety";
@@ -60,4 +60,21 @@ function getClientPromise(): Promise<MongoClient> {
 export async function getProposalsCollection(): Promise<Collection<SavedProposal>> {
   const mongo = await getClientPromise();
   return mongo.db(DB_NAME).collection<SavedProposal>(COLLECTION);
+}
+
+// ─── Helper: returns the users collection ──────────────────────────────────────
+
+export interface DBUser {
+  _id?: ObjectId;
+  name: string;
+  email: string;
+  passwordHash: string;
+  role: "admin" | "user";
+  createdAt: Date;
+  lastLogin: Date | null;
+}
+
+export async function getUsersCollection(): Promise<Collection<DBUser>> {
+  const mongo = await getClientPromise();
+  return mongo.db(DB_NAME).collection<DBUser>("users");
 }

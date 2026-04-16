@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>K-Safety – One Pager | Kabatone × Megason</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  :root {
+    --dark-blue: #1A3A5C;
+    --accent:    #29ABE2;
+    --mid-blue:  #1E6BA8;
+    --light-blue:#D6E8F7;
+    --white:     #FFFFFF;
+    --gray-bg:   #F7F9FC;
+    --text:      #2D3748;
+    --text-light:#64748B;
+  }
+
+  body {
+    font-family: 'Inter', Arial, sans-serif;
+    background: var(--gray-bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .page {
+    max-width: 960px;
+    margin: 20px auto;
+    background: white;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    overflow: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, var(--dark-blue) 0%, var(--mid-blue) 100%);
+    padding: 36px 48px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: rgba(41,171,226,0.10);
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: -40px;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+  .hero-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  .logo-area { display: flex; align-items: center; gap: 14px; }
+  .logo-box {
+    width: 52px; height: 52px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex; align-items:center; justify-content:center;
+    font-size: 26px; font-weight: 900; color: white;
+    letter-spacing: -1px;
+  }
+  .logo-text { color: white; }
+  .logo-text .brand { font-size: 22px; font-weight: 700; color: white; }
+  .logo-text .tagline { font-size: 12px; color: rgba(255,255,255,0.75); }
+
+  .badge {
+    background: var(--accent);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .badge small { display:block; font-size:10px; font-weight:400; color: rgba(255,255,255,0.85); }
+
+  .hero-title {
+    color: white;
+    font-size: 36px;
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .hero-title span { color: white; }
+  .hero-sub {
+    color: rgba(255,255,255,0.85);
+    font-size: 15px;
+    max-width: 580px;
+  }
+  .hero-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+  }
+  .pill {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.35);
+    color: white;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* ACCENT BAND */
+  .accent-band {
+    background: var(--accent);
+    color: white;
+    text-align: center;
+    padding: 10px 48px;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.3px;
+  }
+
+  /* CONTENT */
+  .content { padding: 32px 48px; }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--dark-blue);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 3px solid var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .two-col   { display: grid; grid-template-columns: 1fr 1fr;     gap: 24px; margin-bottom: 28px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+
+  .feature-card {
+    background: var(--gray-bg);
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 18px;
+  }
+  .feature-card .fc-icon { font-size: 28px; margin-bottom: 8px; }
+  .feature-card h4 { font-size: 14px; font-weight: 700; color: var(--dark-blue); margin-bottom: 6px; }
+  .feature-card p  { font-size: 12px; color: var(--text-light); line-height: 1.5; }
+
+  .usecase-box {
+    background: linear-gradient(135deg, var(--dark-blue), var(--mid-blue));
+    border-radius: 10px;
+    padding: 18px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .usecase-box::before {
+    content: '';
+    position: absolute; top:-30px; right:-30px;
+    width:120px;height:120px; border-radius:50%;
+    background: rgba(41,171,226,0.12);
+  }
+  .usecase-box .uc-icon { font-size:30px; margin-bottom:8px; }
+  .usecase-box h4 { font-size:15px; font-weight:700; margin-bottom:6px; }
+  .usecase-box p  { font-size:12px; color:rgba(255,255,255,0.85); line-height:1.5; }
+
+  .int-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+  .int-chip {
+    background: white;
+    border: 2px solid var(--light-blue);
+    color: var(--dark-blue);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .int-chip .dot { width:9px;height:9px; border-radius:50%; background:#22C55E; flex-shrink:0; }
+  .int-chip .dot.amber { background:#F59E0B; }
+  .int-chip small { display:block; font-size:10px; color:var(--text-light); font-weight:400; margin-top:1px; }
+
+  .price-table {
+    width: 100%; border-collapse: collapse;
+    margin-bottom: 28px; font-size: 13px;
+  }
+  .price-table thead tr { background: var(--dark-blue); color: white; }
+  .price-table thead th { padding: 12px 14px; text-align: left; font-weight: 700; }
+  .price-table thead th:first-child { border-radius: 8px 0 0 0; }
+  .price-table thead th:last-child  { border-radius: 0 8px 0 0; }
+  .price-table tbody tr:nth-child(even) { background: var(--gray-bg); }
+  .price-table tbody td { padding: 10px 14px; border-bottom: 1px solid #E2E8F0; text-align: left; }
+  .price-table tbody td.price-num { color: var(--dark-blue); font-weight: 700; text-align: right; }
+  .price-table .cat-row td { background: var(--light-blue); color: var(--dark-blue); font-weight: 700; font-size: 12px; padding: 6px 14px; }
+
+  .hw-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 28px; }
+  .hw-table thead tr { background: var(--mid-blue); color:white; }
+  .hw-table thead th { padding: 10px 12px; text-align:left; font-weight:700; }
+  .hw-table tbody tr:nth-child(even) { background: #F0F7FF; }
+  .hw-table tbody td { padding: 8px 12px; border-bottom:1px solid #E2E8F0; }
+
+  .model-row { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:28px; }
+  .model-box { border: 2px solid var(--light-blue); border-radius: 10px; padding: 20px; background: white; }
+  .model-box h4 { font-size:15px; font-weight:700; color:var(--dark-blue); margin-bottom:10px; }
+  .model-box ul { list-style:none; }
+  .model-box ul li { padding: 5px 0; border-bottom: 1px dashed #E2E8F0; font-size:13px; color: var(--text); }
+  .model-box ul li::before { content:"\2713  "; color:var(--accent); font-weight:700; }
+  .model-box.highlight { border-color:var(--accent); background:linear-gradient(135deg,#F0F9FF,#E0F3FF); }
+  .model-box.highlight h4 { color: var(--mid-blue); }
+
+  .cta-footer {
+    background: linear-gradient(135deg, var(--dark-blue), var(--mid-blue));
+    padding: 28px 48px;
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: center; gap: 24px;
+  }
+  .cta-footer h3 { color:white; font-size:20px; font-weight:700; margin-bottom:6px; }
+  .cta-footer p  { color:rgba(255,255,255,0.8); font-size:13px; }
+  .cta-btn {
+    background: var(--accent); color: white;
+    padding: 14px 28px; border-radius: 8px;
+    font-size: 15px; font-weight: 700;
+    text-decoration: none; white-space: nowrap;
+    display: block; text-align: center;
+  }
+
+  @media print {
+    body { background: white; }
+    .page { box-shadow: none; margin: 0; max-width: 100%; }
+  }
+
+  .divider { height:1px; background:linear-gradient(90deg,var(--accent),transparent); margin:20px 0; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-top">
+      <div class="logo-area">
+        <div class="logo-box">K</div>
+        <div class="logo-text">
+          <div class="brand">Kabatone</div>
+          <div class="tagline">Smart City Safety Intelligence</div>
+        </div>
+      </div>
+      <div class="badge">
+        Confidential<br/>
+        <small>Megason &times; Kabatone | April 2026</small>
+      </div>
+    </div>
+
+    <div class="hero-title">
+      K-Safety<br/>
+      <span>Intelligent Command &amp; Control Platform</span><br/>
+      for Strategic Facilities
+    </div>
+    <div class="hero-sub">
+      An AI-powered Command &amp; Control system for complete security management: cameras, face &amp; license plate recognition,
+      panic buttons, alarms, and access control – all from a single screen.
+    </div>
+    <div class="hero-pills">
+      <div class="pill">&#9992; Airports</div>
+      <div class="pill">&#9874; Oil &amp; Gas</div>
+      <div class="pill">&#9965; Industrial Facilities</div>
+      <div class="pill">&#128274; Critical Infrastructure</div>
+      <div class="pill">&#127968; Defense Facilities</div>
+      <div class="pill">&#127970; Smart Cities</div>
+    </div>
+  </div>
+
+  <!-- ACCENT BAND -->
+  <div class="accent-band">
+    Open Architecture &middot; Full Integration with LENEL &middot; PIMA &middot; RISCO &middot; Any VMS Vendor &middot; IoT &middot; BI
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <div class="section-title">&#128737; What is K-Safety?</div>
+    <p style="margin-bottom:16px; font-size:14px; line-height:1.7; color:var(--text);">
+      <strong>K-Safety</strong> is an intelligent Command &amp; Control platform designed to unify all security systems at a facility under one roof – CCTV cameras, face and license plate recognition, AI-based Video Analytics, panic buttons, alarm systems (PIMA, RISCO), and access control (LENEL and others).
+      The system manages events in real time, executes smart BPM workflows, and presents a complete operational picture on an interactive GIS map.
+    </p>
+
+    <div class="section-title">&#9889; Core Capabilities</div>
+    <div class="three-col">
+      <div class="feature-card">
+        <div class="fc-icon">&#127909;</div>
+        <h4>Unified Video Management</h4>
+        <p>Connect all CCTV, LPR, and face recognition cameras. Live view, archive, and smart search.</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon">&#129302;</div>
+        <h4>Video Analytics (AI)</h4>
+        <p>Intrusion detection, abandoned objects, people counting, virtual lines – all in real time.</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon">&#128100;</div>
+        <h4>Face &amp; License Plate Recognition</h4>
+        <p>Instant alerts for people or vehicles on blacklists/whitelists via a central interface.</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon">&#128680;</div>
+        <h4>Smart Event Management</h4>
+        <p>Automated BPM/RBE: every event receives a workflow, owner, SLA, and tracking until closure.</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon">&#128506;</div>
+        <h4>GIS / Live Map</h4>
+        <p>All cameras, sensors, and forces marked on an interactive real-time map.</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon">&#128241;</div>
+        <h4>K-React – Field App</h4>
+        <p>Field forces receive tasks, navigation, and situational awareness directly on mobile.</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon">&#128202;</div>
+        <h4>BI &amp; Reports</h4>
+        <p>Real-time dashboards, executive reports, trend analysis, and custom KPIs.</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon">&#128276;</div>
+        <h4>Panic Buttons / IoT</h4>
+        <p>Connect to SOS buttons, gas detectors, environmental sensors – BACnet, Modbus, MQTT.</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon">&#128101;</div>
+        <h4>Shift &amp; Force Management</h4>
+        <p>Shift planning, status updates, communication, and force coordination in real time.</p>
+      </div>
+    </div>
+
+    <div class="section-title">&#127919; Use Cases – Strategic Facilities</div>
+    <div class="three-col">
+      <div class="usecase-box">
+        <div class="uc-icon">&#9992;</div>
+        <h4>Airports</h4>
+        <p>Monitoring terminals, airside areas, entry gates, and warehouses. Integration with LENEL and LPR cameras at gates.</p>
+      </div>
+      <div class="usecase-box">
+        <div class="uc-icon">&#9874;</div>
+        <h4>Oil &amp; Gas Facilities</h4>
+        <p>Perimeter intrusion detection, integrated gas sensors, emergency force management, and real-time updates to rescue teams.</p>
+      </div>
+      <div class="usecase-box">
+        <div class="uc-icon">&#9965;</div>
+        <h4>Critical Infrastructure</h4>
+        <p>Power stations, water, and communication infrastructure – 24/7 monitoring with instant alerts and automated response workflows.</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-title">&#128279; Supported Integrations – Open Architecture</div>
+    <div style="font-size:11px; color:var(--text-light); margin-bottom:10px; display:flex; gap:16px; align-items:center;">
+      <span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#22C55E;margin-right:4px;"></span>Ready</span>
+      <span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#F59E0B;margin-right:4px;"></span>In Development / Partial</span>
+    </div>
+    <div class="int-grid">
+      <div class="int-chip"><div class="dot"></div><div><div>Milestone VMS</div></div></div>
+      <div class="int-chip"><div class="dot"></div><div><div>Genetec</div></div></div>
+      <div class="int-chip"><div class="dot"></div><div><div>LPR – Nerosoft, Milestone</div></div></div>
+      <div class="int-chip"><div class="dot"></div><div><div>Face Recognition – Corsight, SAFR</div></div></div>
+      <div class="int-chip"><div class="dot"></div><div><div>Video Analytics – IRISITY</div></div></div>
+      <div class="int-chip"><div class="dot"></div><div><div>ArcGIS / ESRI</div></div></div>
+      <div class="int-chip"><div class="dot"></div><div><div>Motorola / Hytera AVL</div></div></div>
+      <div class="int-chip"><div class="dot"></div><div><div>Axis / Hikvision / Bosch</div></div></div>
+      <div class="int-chip"><div class="dot"></div><div><div>ONVIF (Any Camera)</div></div></div>
+      <div class="int-chip"><div class="dot"></div><div><div>BACnet / Modbus / MQTT</div></div></div>
+      <div class="int-chip"><div class="dot"></div><div><div>Splunk / IBM QRadar</div></div></div>
+      <div class="int-chip"><div class="dot"></div><div><div>SQL / Elasticsearch</div></div></div>
+      <div class="int-chip"><div class="dot amber"></div><div><div>LENEL (Access Control)</div><small>In Development – Partial</small></div></div>
+      <div class="int-chip"><div class="dot amber"></div><div><div>PIMA – Alarms</div><small>In Development – Partial</small></div></div>
+      <div class="int-chip"><div class="dot amber"></div><div><div>RISCO – Alarms</div><small>In Development – Partial</small></div></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-title">&#128176; Main Price List – Perpetual Model (Megason)</div>
+    <table class="price-table">
+      <thead>
+        <tr>
+          <th>Component</th><th>Unit</th><th>Perpetual ($)</th><th>Annual Maintenance (from Yr 2)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="cat-row"><td colspan="4">Platform &amp; Licenses</td></tr>
+        <tr><td>K-Safety Core Platform</td><td>System</td><td class="price-num">$65,000</td><td>$13,000/year</td></tr>
+        <tr><td>CCTV Video Channels<br/><small style="color:var(--text-light);font-weight:400;">Includes VXG video system</small></td><td>per Channel</td><td class="price-num">$150</td><td>$30/year</td></tr>
+        <tr><td>LPR – License Plate Recognition<br/><small style="color:var(--text-light);font-weight:400;">Integration with existing LPR system on site</small></td><td>per Channel</td><td class="price-num">$150</td><td>$30/year</td></tr>
+        <tr><td>Face Recognition<br/><small style="color:var(--text-light);font-weight:400;">Integration with existing face recognition system on site</small></td><td>per Channel</td><td class="price-num">$150</td><td>$30/year</td></tr>
+        <tr><td>Video Analytics (AI)<br/><small style="color:var(--text-light);font-weight:400;">Integration with existing VA system on site</small></td><td>per Channel</td><td class="price-num">$150</td><td>$30/year</td></tr>
+        <tr><td>User Licenses</td><td>per User</td><td class="price-num">$250</td><td>$50/year</td></tr>
+        <tr><td>IoT Sensors</td><td>per Sensor</td><td class="price-num">$10</td><td>$2/year</td></tr>
+        <tr class="cat-row"><td colspan="4">Applications</td></tr>
+        <tr><td>K-React First Responder App</td><td>per Unit</td><td class="price-num">$175</td><td>$35/year</td></tr>
+        <tr class="cat-row"><td colspan="4">Professional Services (excl. maintenance)</td></tr>
+        <tr><td>Installation &amp; Setup (2 weeks)</td><td>Project</td><td class="price-num">$10,000</td><td>—</td></tr>
+        <tr><td>Training &amp; Implementation (1 week)</td><td>Project</td><td class="price-num">$2,250</td><td>—</td></tr>
+        <tr><td>Full Deployment (1 month)</td><td>Project</td><td class="price-num">$15,000</td><td>—</td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">&#128203; Business Model</div>
+    <div style="max-width:560px;">
+      <div class="model-box highlight">
+        <h4>&#127942; Perpetual Model – Recommended for Strategic Facilities</h4>
+        <ul>
+          <li>One-time payment for a perpetual license</li>
+          <li>Annual maintenance from Yr 2: 20% of Perpetual</li>
+          <li>Includes version updates, support &amp; maintenance</li>
+          <li>SLA 8&times;5 (upgrade to 24&times;7 available)</li>
+          <li>On-Prem – full data control</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section-title">&#128187; HW Infrastructure Requirements (General Scope)</div>
+    <table class="hw-table">
+      <thead>
+        <tr><th>Component</th><th>Base Qty</th><th>Scaling Rule</th><th>Min. Spec</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Application Servers</td><td>3</td><td>+1 per 300 LPR / +1 per 100 FR / +1 for HA</td><td>Windows Server 2022, 16C/64GB/1TB</td></tr>
+        <tr><td>Active Directory + Maintenance</td><td>2</td><td>Fixed</td><td>Windows Server 2022</td></tr>
+        <tr><td>SQL Server + Elasticsearch</td><td>2</td><td>Fixed</td><td>SQL Server 2022 / Ubuntu 22.04</td></tr>
+        <tr><td>Web Frontend (NGINX+MongoDB)</td><td>1</td><td>Fixed</td><td>Ubuntu 22.04 LTS</td></tr>
+        <tr><td>DMZ Server</td><td>1 (if required)</td><td>Only if K-Share/K-React included</td><td>Ubuntu 22.04 LTS</td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">&#11088; Why K-Safety?</div>
+    <div class="two-col" style="margin-bottom:8px;">
+      <div style="background:var(--gray-bg); border-radius:10px; padding:18px;">
+        <p style="font-size:13px; line-height:1.8;">
+          &#10003; <strong>Open Architecture</strong> – Works with all existing equipment<br/>
+          &#10003; <strong>AI-Native</strong> – Video Analytics, NLP, automated insight generation<br/>
+          &#10003; <strong>Modular</strong> – Buy only what you need, expand in the future<br/>
+          &#10003; <strong>Proven</strong> – Dozens of projects in Israel and worldwide<br/>
+          &#10003; <strong>NDAA Compliant</strong> – Meets security and regulatory requirements
+        </p>
+      </div>
+      <div style="background:linear-gradient(135deg,#1A3A5C,#1E6BA8); border-radius:10px; padding:18px; color:white;">
+        <p style="font-size:13px; line-height:1.8;">
+          &#9642; <strong>One Platform</strong> for all security systems<br/>
+          &#9642; <strong>Real-Time Command Center</strong> with AI<br/>
+          &#9642; <strong>Fast Incident Response</strong> – automated BPM<br/>
+          &#9642; <strong>Proven ROI</strong> – workforce savings &amp; incident prevention<br/>
+          &#9642; <strong>Full Support</strong> in English + 24/7 option
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CTA FOOTER -->
+  <div class="cta-footer">
+    <div>
+      <h3>Ready to Start Offering K-Safety to Your Customers?</h3>
+      <p>Contact Kabatone for a customized quote, POC, and customer proposal support.</p>
+      <p style="margin-top:8px; color:rgba(255,255,255,0.65); font-size:12px;">
+        &#127760; www.kabatone.com &nbsp;|&nbsp; &#128231; info@kabatone.com
+      </p>
+    </div>
+    <a href="mailto:info@kabatone.com" class="cta-btn">&#128233; Contact Us</a>
+  </div>
+
+</div>
+</body>
+</html>

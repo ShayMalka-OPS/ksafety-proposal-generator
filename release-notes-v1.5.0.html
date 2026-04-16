@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>K-Safety Proposal Generator — Release Notes v1.5.0</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f6f9;font-family:'Segoe UI',Arial,sans-serif;color:#2d3748;">
+
+  <!-- Wrapper -->
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f9;padding:32px 0;">
+    <tr>
+      <td align="center">
+        <table width="620" cellpadding="0" cellspacing="0" style="max-width:620px;width:100%;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#1A3A5C 0%,#1E6BA8 100%);border-radius:12px 12px 0 0;padding:40px 40px 32px;text-align:center;">
+              <div style="display:inline-block;background:#ffffff20;border-radius:12px;padding:10px 14px;margin-bottom:16px;">
+                <span style="font-size:28px;">🛡️</span>
+              </div>
+              <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:-0.3px;">
+                K-Safety Proposal Generator
+              </h1>
+              <p style="margin:6px 0 0;color:#93c5fd;font-size:13px;">by Kabatone Ltd.</p>
+              <div style="margin-top:16px;display:inline-block;">
+                <span style="background:#ffffff;color:#1A3A5C;font-size:12px;font-weight:800;padding:5px 14px;border-radius:20px;letter-spacing:0.5px;">
+                  VERSION 1.5.0
+                </span>
+                <span style="color:#bfdbfe;font-size:12px;margin-left:10px;">April 9, 2026</span>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Intro -->
+          <tr>
+            <td style="background:#ffffff;padding:32px 40px 24px;">
+              <p style="margin:0 0 8px;font-size:15px;color:#1A3A5C;font-weight:700;">Hi team,</p>
+              <p style="margin:0;font-size:14px;line-height:1.7;color:#4a5568;">
+                We've just released <strong>version 1.5.0</strong> of the K-Safety Proposal Generator with a set of meaningful improvements — including bug fixes, new infrastructure flexibility, and a richer proposal experience. Here's everything that's new.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Divider -->
+          <tr>
+            <td style="background:#ffffff;padding:0 40px;">
+              <hr style="border:none;border-top:1px solid #e2e8f0;margin:0;" />
+            </td>
+          </tr>
+
+          <!-- Section: Bug Fixes -->
+          <tr>
+            <td style="background:#ffffff;padding:28px 40px 8px;">
+              <p style="margin:0 0 16px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#1E6BA8;">
+                🔧 Bug Fixes
+              </p>
+
+              <!-- Fix 1 -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+                <tr>
+                  <td width="36" valign="top">
+                    <div style="width:28px;height:28px;background:#fef2f2;border-radius:8px;text-align:center;line-height:28px;font-size:14px;">🗑️</div>
+                  </td>
+                  <td style="padding-left:12px;">
+                    <p style="margin:0 0 3px;font-size:13px;font-weight:700;color:#1A3A5C;">Removed K-Analytics product line</p>
+                    <p style="margin:0;font-size:13px;color:#718096;line-height:1.6;">
+                      Step 1 now shows only the three active product lines: <strong>K-Safety</strong>, <strong>K-Video</strong>, and <strong>K-Dispatch</strong>. K-Analytics has been removed from the selector.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Fix 2 -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+                <tr>
+                  <td width="36" valign="top">
+                    <div style="width:28px;height:28px;background:#fef2f2;border-radius:8px;text-align:center;line-height:28px;font-size:14px;">💾</div>
+                  </td>
+                  <td style="padding-left:12px;">
+                    <p style="margin:0 0 3px;font-size:13px;font-weight:700;color:#1A3A5C;">Proposal history now loads correctly</p>
+                    <p style="margin:0;font-size:13px;color:#718096;line-height:1.6;">
+                      Fixed a critical bug where saved proposals were not appearing in the History page after a page reload or browser restart. All proposals stored in MongoDB Atlas are now reliably retrieved.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Divider -->
+          <tr>
+            <td style="background:#ffffff;padding:0 40px;">
+              <hr style="border:none;border-top:1px solid #e2e8f0;margin:0;" />
+            </td>
+          </tr>
+
+          <!-- Section: New Features -->
+          <tr>
+            <td style="background:#ffffff;padding:28px 40px 8px;">
+              <p style="margin:0 0 16px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#1E6BA8;">
+                ✨ New Features
+              </p>
+
+              <!-- Feature 1 -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+                <tr>
+                  <td width="36" valign="top">
+                    <div style="width:28px;height:28px;background:#eff6ff;border-radius:8px;text-align:center;line-height:28px;font-size:14px;">🖥️</div>
+                  </td>
+                  <td style="padding-left:12px;">
+                    <p style="margin:0 0 3px;font-size:13px;font-weight:700;color:#1A3A5C;">Full HA Mode infrastructure</p>
+                    <p style="margin:0;font-size:13px;color:#718096;line-height:1.6;">
+                      Enabling <strong>High Availability Mode</strong> in Step 4 now generates a complete redundant architecture: dual Active Directory servers, dedicated application servers for each active integration (LPR, Face Recognition, Video Analytics), a 3-node Elasticsearch cluster, and a duplicate web server.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Feature 2 -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+                <tr>
+                  <td width="36" valign="top">
+                    <div style="width:28px;height:28px;background:#eff6ff;border-radius:8px;text-align:center;line-height:28px;font-size:14px;">✏️</div>
+                  </td>
+                  <td style="padding-left:12px;">
+                    <p style="margin:0 0 3px;font-size:13px;font-weight:700;color:#1A3A5C;">Editable VM infrastructure table</p>
+                    <p style="margin:0;font-size:13px;color:#718096;line-height:1.6;">
+                      The VM infrastructure table in <strong>Step 5 (Pricing Summary)</strong> is now fully editable. You can modify server specs inline, add custom rows, delete rows you don't need, or reset the entire table back to the auto-calculated values.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Feature 3 -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+                <tr>
+                  <td width="36" valign="top">
+                    <div style="width:28px;height:28px;background:#eff6ff;border-radius:8px;text-align:center;line-height:28px;font-size:14px;">💰</div>
+                  </td>
+                  <td style="padding-left:12px;">
+                    <p style="margin:0 0 3px;font-size:13px;font-weight:700;color:#1A3A5C;">Discount field in Pricing Summary</p>
+                    <p style="margin:0;font-size:13px;color:#718096;line-height:1.6;">
+                      A new <strong>discount percentage field</strong> in Step 5 allows you to apply a deal discount. The grand total, discounted amount, and 5-year cost comparison all update in real time.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Feature 4 -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+                <tr>
+                  <td width="36" valign="top">
+                    <div style="width:28px;height:28px;background:#eff6ff;border-radius:8px;text-align:center;line-height:28px;font-size:14px;">🌍</div>
+                  </td>
+                  <td style="padding-left:12px;">
+                    <p style="margin:0 0 3px;font-size:13px;font-weight:700;color:#1A3A5C;">Multi-currency display in Step 6</p>
+                    <p style="margin:0;font-size:13px;color:#718096;line-height:1.6;">
+                      You can now switch the proposal preview between <strong>USD ($)</strong>, <strong>NIS (₪)</strong>, and <strong>MXN (MX$)</strong> with a single click. All prices in the preview convert automatically. Exports always remain in USD.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Feature 5 -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+                <tr>
+                  <td width="36" valign="top">
+                    <div style="width:28px;height:28px;background:#eff6ff;border-radius:8px;text-align:center;line-height:28px;font-size:14px;">🤖</div>
+                  </td>
+                  <td style="padding-left:12px;">
+                    <p style="margin:0 0 3px;font-size:13px;font-weight:700;color:#1A3A5C;">Improved AI Summary section in Step 6</p>
+                    <p style="margin:0;font-size:13px;color:#718096;line-height:1.6;">
+                      Section 5 is now titled <strong>"Generative AI Summary"</strong> and the Generate button is positioned directly alongside it for a cleaner flow. Product descriptions in Section 2 now show only the modules the customer actually selected — no more generic overviews for unrelated products.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- CTA -->
+          <tr>
+            <td style="background:#ffffff;padding:8px 40px 32px;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="background:#f0f7ff;border-left:4px solid #1E6BA8;border-radius:0 8px 8px 0;padding:16px 20px;">
+                    <p style="margin:0 0 4px;font-size:13px;font-weight:700;color:#1A3A5C;">Ready to try it?</p>
+                    <p style="margin:0;font-size:13px;color:#4a5568;line-height:1.6;">
+                      Log in to the Proposal Generator and start a new proposal to see all the new features in action. If you run into anything unexpected, reply to this email or open an issue on GitHub.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background:#1A3A5C;border-radius:0 0 12px 12px;padding:24px 40px;text-align:center;">
+              <p style="margin:0 0 4px;color:#93c5fd;font-size:12px;font-weight:600;">Kabatone Ltd.</p>
+              <p style="margin:0;color:#64748b;font-size:11px;">
+                <a href="mailto:shaym@kabatone.com" style="color:#93c5fd;text-decoration:none;">shaym@kabatone.com</a>
+                &nbsp;·&nbsp;
+                <a href="https://github.com/ShayMalka-OPS/ksafety-proposal-generator" style="color:#93c5fd;text-decoration:none;">GitHub</a>
+                &nbsp;·&nbsp;
+                www.kabatone.com
+              </p>
+              <p style="margin:12px 0 0;color:#475569;font-size:10px;">
+                K-Safety Proposal Generator v1.5.0 · Released April 9, 2026
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
