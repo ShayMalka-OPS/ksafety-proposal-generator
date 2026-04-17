@@ -485,7 +485,9 @@ function Step2({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
                         {!selected && (
                           <div className="text-xs text-gray-400 mt-0.5">
                             {DEFAULT_ANNUAL_PRICES[product.id] > 0
-                              ? `Default: ${fmt(DEFAULT_ANNUAL_PRICES[product.id])}/${product.unitLabel}/yr`
+                              ? data.pricingModel === "perpetual"
+                                ? `Default: ${fmt(DEFAULT_ANNUAL_PRICES[product.id] * PERP_MULTIPLIER)}/${product.unitLabel} (one-time)`
+                                : `Default: ${fmt(DEFAULT_ANNUAL_PRICES[product.id])}/${product.unitLabel}/yr`
                               : product.id === "kshare" || product.id === "services"
                               ? "Pricing varies by tier/package"
                               : "Included"}
@@ -606,10 +608,10 @@ function Step2({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
 
                             {/* K1-Video subsection */}
                             <div className="rounded-lg border border-gray-200 bg-white p-3">
-                              <div className="flex items-center gap-3 mb-2">
+                              <div className="flex items-start gap-3 mb-2">
                                 <button
                                   type="button"
-                                  className="w-10 h-6 rounded-full relative transition-colors flex-shrink-0"
+                                  className="w-10 h-6 rounded-full relative transition-colors flex-shrink-0 mt-0.5"
                                   style={{ backgroundColor: (data.k1VideoEnabled ?? false) ? MID_BLUE : "#d1d5db" }}
                                   onClick={() => toggleK1Video(!(data.k1VideoEnabled ?? false))}
                                 >
@@ -618,9 +620,9 @@ function Step2({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
                                     style={{ transform: (data.k1VideoEnabled ?? false) ? "translateX(19px)" : "translateX(2px)" }}
                                   />
                                 </button>
-                                <div className="flex-1">
-                                  <div className="text-xs font-bold" style={{ color: DARK_BLUE }}>K1-Video (VXG Embedded VMS — Kabatone native)</div>
-                                  <div className="text-xs text-gray-500">HW sizing calculated in Step 6 Infrastructure.</div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-xs font-bold leading-snug" style={{ color: DARK_BLUE }}>K1-Video (VXG Embedded VMS — Kabatone native)</div>
+                                  <div className="text-xs text-gray-500 mt-0.5">HW sizing calculated in Step 6 Infrastructure.</div>
                                 </div>
                               </div>
 
@@ -913,7 +915,7 @@ function Step2({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
                                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
                                     setPriceStrings((prev) => { const { [priceKey]: _omit, ...rest } = prev; return rest; });
                                   }}
-                                  title={`Default: ${fmt(defaultPriceVal)}/${product.unitLabel}/yr`}
+                                  title={data.pricingModel === "perpetual" ? `Default: ${fmt(defaultPriceVal * PERP_MULTIPLIER)}/${product.unitLabel} (one-time)` : `Default: ${fmt(defaultPriceVal)}/${product.unitLabel}/yr`}
                                   className="w-32 pl-7 pr-3 py-1.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E6BA8] transition-colors"
                                   style={{
                                     borderColor: isModified ? "#f59e0b" : "#d1d5db",
@@ -931,12 +933,14 @@ function Step2({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
                                     onClick={() => resetPrice(priceKey)}
                                     className="text-xs hover:underline" style={{ color: MID_BLUE }}
                                   >
-                                    Reset to {fmt(defaultPriceVal)}
+                                    Reset to {fmt(data.pricingModel === "perpetual" ? defaultPriceVal * PERP_MULTIPLIER : defaultPriceVal)}
                                   </button>
                                 </>
                               ) : (
                                 <span className="text-xs text-gray-400">
-                                  Default: {fmt(defaultPriceVal)}/{product.unitLabel}/yr
+                                  {data.pricingModel === "perpetual"
+                                    ? `Default: ${fmt(defaultPriceVal * PERP_MULTIPLIER)}/${product.unitLabel} (one-time)`
+                                    : `Default: ${fmt(defaultPriceVal)}/${product.unitLabel}/yr`}
                                 </span>
                               )}
                             </div>

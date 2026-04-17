@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifySessionToken } from "@/lib/auth";
 import { getUsersCollection } from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
+
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
