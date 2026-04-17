@@ -608,23 +608,29 @@ function Step2({ data, onChange }: { data: ProposalData; onChange: (d: Partial<P
 
                             {/* K1-Video subsection */}
                             <div className="rounded-lg border border-gray-200 bg-white p-3">
-                              <div className="flex items-start gap-3 mb-2">
-                                <button
-                                  type="button"
-                                  className="w-10 h-6 rounded-full relative transition-colors flex-shrink-0 mt-0.5"
-                                  style={{ backgroundColor: (data.k1VideoEnabled ?? false) ? MID_BLUE : "#d1d5db" }}
-                                  onClick={() => toggleK1Video(!(data.k1VideoEnabled ?? false))}
+                              <button
+                                type="button"
+                                className="w-full text-left flex items-center gap-3"
+                                onClick={() => toggleK1Video(!(data.k1VideoEnabled ?? false))}
+                              >
+                                <div
+                                  className="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center border-2 transition-colors"
+                                  style={{
+                                    borderColor: (data.k1VideoEnabled ?? false) ? MID_BLUE : "#d1d5db",
+                                    backgroundColor: (data.k1VideoEnabled ?? false) ? MID_BLUE : "white",
+                                  }}
                                 >
-                                  <span
-                                    className="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform"
-                                    style={{ transform: (data.k1VideoEnabled ?? false) ? "translateX(19px)" : "translateX(2px)" }}
-                                  />
-                                </button>
+                                  {(data.k1VideoEnabled ?? false) && (
+                                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                  )}
+                                </div>
                                 <div className="flex-1 min-w-0">
-                                  <div className="text-xs font-bold leading-snug" style={{ color: DARK_BLUE }}>K1-Video (VXG Embedded VMS — Kabatone native)</div>
+                                  <div className="text-sm font-semibold leading-snug" style={{ color: DARK_BLUE }}>K1-Video (VXG Embedded VMS — Kabatone native)</div>
                                   <div className="text-xs text-gray-500 mt-0.5">HW sizing calculated in Step 6 Infrastructure.</div>
                                 </div>
-                              </div>
+                              </button>
 
                               {data.k1VideoEnabled && (
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 ml-0 pt-2 border-t border-gray-100">
